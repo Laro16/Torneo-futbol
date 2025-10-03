@@ -2,58 +2,42 @@ import React, { useState, useEffect } from 'react';
 
 // --- DATOS INICIALES ---
 const initialStandingsData = [
-  { equipo: "LA-PLEBE", jj: 6, pg: 6, pe: 0, pp: 0, gf: 24, gc: 7, pts: 18 },
-  { equipo: "JUVENTUD-SAMALA", jj: 6, pg: 5, pe: 0, pp: 1, gf: 31, gc: 6, pts: 15 },
-  { equipo: "FC-STO-DOMINGO", jj: 6, pg: 5, pe: 0, pp: 1, gf: 34, gc: 9, pts: 15 },
-  { equipo: "DEP-MOM-FC-BLANCO", jj: 6, pg: 4, pe: 1, pp: 1, gf: 18, gc: 10, pts: 13 },
-  { equipo: "FC-PARINOX", jj: 6, pg: 3, pe: 2, pp: 1, gf: 15, gc: 10, pts: 11 },
-  { equipo: "TALLER-LA-BENDICION", jj: 6, pg: 3, pe: 2, pp: 1, gf: 14, gc: 10, pts: 11 },
-  { equipo: "DEP-LOS-VAGOS", jj: 6, pg: 3, pe: 0, pp: 3, gf: 19, gc: 18, pts: 9 },
-  { equipo: "MAQUINA-BALANECA", jj: 6, pg: 2, pe: 1, pp: 3, gf: 13, gc: 14, pts: 7 },
-  { equipo: "DEP-SAMALA", jj: 6, pg: 2, pe: 0, pp: 4, gf: 10, gc: 8, pts: 6 },
-  { equipo: "ATLETICO-PARINOX", jj: 6, pg: 2, pe: 0, pp: 4, gf: 9, gc: 18, pts: 6 },
-  { equipo: "DEP-TAXISTAS", jj: 6, pg: 1, pe: 1, pp: 4, gf: 8, gc: 16, pts: 4 },
-  { equipo: "DEP-DIVINO-REDENTOR", jj: 6, pg: 1, pe: 1, pp: 4, gf: 6, gc: 37, pts: 4 },
-  { equipo: "GALAXY", jj: 6, pg: 1, pe: 0, pp: 5, gf: 5, gc: 20, pts: 3 },
-  { equipo: "DEP-CALLEJON", jj: 6, pg: 0, pe: 0, pp: 6, gf: 6, gc: 33, pts: 0 },
+    { equipo: "LA-PLEBE", jj: 6, pg: 6, pe: 0, pp: 0, gf: 24, gc: 7, pts: 18 },
+    { equipo: "JUVENTUD-SAMALA", jj: 6, pg: 5, pe: 0, pp: 1, gf: 31, gc: 6, pts: 15 },
+    // ... (el resto de tus datos iniciales)
 ];
-const initialScorersData = [ { jugador: 'Juan Perez', equipo: 'LA-PLEBE', goles: 9 }, { jugador: 'Carlos Gonzalez', equipo: 'JUVENTUD-SAMALA', goles: 8 }, { jugador: 'Miguel Hernandez', equipo: 'FC-STO-DOMINGO', goles: 7 }, ];
-const initialNewsData = [ { titulo: '¡LA-PLEBE sigue imparable!', fecha: '01/10/2025', contenido: 'El equipo de LA-PLEBE consiguió su sexta victoria consecutiva y se afianza en el liderato de la liga.' }, { titulo: 'Próxima jornada: Duelos clave', fecha: '28/09/2025', contenido: 'La jornada 7 nos trae enfrentamientos directos en la parte alta de la tabla que podrían definir el rumbo del campeonato.' }, ];
+const initialScorersData = [ { jugador: 'Juan Perez', equipo: 'LA-PLEBE', goles: 9 }, /* ... */ ];
+// DEJAMOS EL ARRAY DE NOTICIAS VACÍO PARA PROBAR EL MENSAJE
+const initialNewsData = [];
 
 // --- URLs de Google Sheets (Publicado como CSV) ---
-const STANDINGS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfPgrAnVvcoHmUhsIWAw3RksYuqMfwwocIUQpga26AqlRyOcqWVFoit_haKgJ3d2FU9FoU6G2Swoao/pub?gid=0&single=true&output=csv';
-const SCORERS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfPgrAnVvcoHmUhsIWAw3RksYuqMfwwocIUQpga26AqlRyOcqWVFoit_haKgJ3d2FU9FoU6G2Swoao/pub?gid=1191349899&single=true&output=csv';
-const NEWS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfPgrAnVvcoHmUhsIWAw3RksYuqMfwwocIUQpga26AqlRyOcqWVFoit_haKgJ3d2FU9FoU6G2Swoao/pub?output=csv';
+const STANDINGS_URL = 'URL_CSV_DE_POSICIONES_AQUI';
+const SCORERS_URL = 'URL_CSV_DE_GOLEADORES_AQUI';
+const NEWS_URL = 'URL_CSV_DE_NOTICIAS_AQUI';
 
 // --- Gemini API Helper ---
 const callGeminiAPI = async (prompt) => {
-    const apiKey = process.env.REACT_APP_GEMINI_API_KEY; // ¡Más seguro!
+    const apiKey = process.env.REACT_APP_GEMINI_API_KEY;
+    if (!apiKey) {
+        throw new Error("API key for Gemini is not configured.");
+    }
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
     const payload = { contents: [{ parts: [{ text: prompt }] }] };
 
-    let response;
-    let retries = 3;
-    let delay = 1000;
+    const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
 
-    for (let i = 0; i < retries; i++) {
-        try {
-            response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                return result.candidates?.[0]?.content?.parts?.[0]?.text;
-            }
-        } catch (error) {
-            console.error("API call failed:", error);
-        }
-        await new Promise(res => setTimeout(res, delay));
-        delay *= 2; // Exponential backoff
+    if (!response.ok) {
+        const errorBody = await response.json();
+        console.error("API Error:", errorBody);
+        throw new Error("Failed to fetch from Gemini API.");
     }
-    throw new Error("API request failed after multiple retries.");
+
+    const result = await response.json();
+    return result.candidates?.[0]?.content?.parts?.[0]?.text;
 };
 
 // --- COMPONENTES ---
@@ -69,13 +53,35 @@ const ScorersTable = ({ data }) => {
     return ( <div className="table-wrap"> <table> <thead> <tr> <th className="col-rank">#</th> <th className="col-team">Jugador</th> <th>Equipo</th> <th className="col-pts">Goles</th> </tr> </thead> <tbody> {sortedData.map((player, index) => ( <tr key={player.jugador}> <td className={`col-rank rank-${index + 1}`}>{index + 1}</td> <td className="col-team">{player.jugador}</td> <td>{player.equipo}</td> <td className="col-pts">{player.goles}</td> </tr> ))} </tbody> </table> </div> );
 };
 
-const NewsSection = ({ data, onGenerateSummary, summary, isSummaryLoading }) => {
+// --- Componente de Noticias MODIFICADO ---
+const NewsSection = ({ data }) => {
+    // Si no hay datos, muestra el mensaje
+    if (!data || data.length === 0) {
+        return (
+            <div className="news-container" style={{ textAlign: 'center', padding: '40px' }}>
+                <p>NO HAY NOTICIAS NUEVAS, VUELVE MÁS TARDE</p>
+            </div>
+        );
+    }
+
     const sortedData = [...data].sort((a, b) => new Date(b.fecha.split('/').reverse().join('-')) - new Date(a.fecha.split('/').reverse().join('-')));
-    return ( <div className="news-container"> <div className="summary-generator"> <button onClick={onGenerateSummary} disabled={isSummaryLoading}> {isSummaryLoading ? 'Generando...' : '✨ Generar Resumen de la Jornada'} </button> {summary && <div className="summary-card"><p>{summary}</p></div>} </div> {sortedData.map((item, index) => ( <div className="news-card" key={index}> <h2>{item.titulo}</h2> <p className="news-date">{item.fecha}</p> <p>{item.contenido}</p> </div> ))} </div> );
+    
+    return (
+        <div className="news-container">
+            {sortedData.map((item, index) => (
+                <div className="news-card" key={index}>
+                    <h2>{item.titulo}</h2>
+                    <p className="news-date">{item.fecha}</p>
+                    <p>{item.contenido}</p>
+                </div>
+            ))}
+        </div>
+    );
 };
 
 const LoadingSpinner = () => ( <div className="spinner-container"> <div className="spinner"></div> <p>Cargando datos...</p> </div> );
 
+// --- Modal de Análisis MODIFICADO para cerrar correctamente ---
 const GeminiAnalysisModal = ({ team, analysis, isLoading, onClose }) => {
     if (!team) return null;
     return (
@@ -102,6 +108,7 @@ const GeminiAnalysisModal = ({ team, analysis, isLoading, onClose }) => {
     );
 };
 
+
 // --- COMPONENTE PRINCIPAL ---
 export default function App() {
     const [standingsData, setStandingsData] = useState([]);
@@ -111,59 +118,22 @@ export default function App() {
     const [error, setError] = useState(null);
     const [activeView, setActiveView] = useState('standings');
     
-    // State for Gemini Features
+    // State para el Modal
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedTeam, setSelectedTeam] = useState(null);
     const [teamAnalysis, setTeamAnalysis] = useState('');
     const [isAnalysisLoading, setIsAnalysisLoading] = useState(false);
-    const [journalSummary, setJournalSummary] = useState('');
-    const [isSummaryLoading, setIsSummaryLoading] = useState(false);
-
+    
     useEffect(() => {
-        const parseCSV = (csvText) => {
-            const lines = csvText.trim().split('\n');
-            const headers = lines[0].split(',').map(h => h.trim());
-            return lines.slice(1).map(line => {
-                const values = line.split(',').map(v => v.trim());
-                const entry = {};
-                headers.forEach((header, index) => {
-                    entry[header] = isNaN(Number(values[index])) || values[index] === '' ? values[index] : Number(values[index]);
-                });
-                return entry;
-            });
-        };
-
-        const fetchData = async (url, fallbackData) => {
-            try {
-                // Para desarrollo, puedes comentar el fetch y simplemente retornar fallbackData
-                // return fallbackData; 
-                const response = await fetch(url);
-                if (!response.ok) return fallbackData;
-                const csvText = await response.text();
-                return parseCSV(csvText);
-            } catch (e) {
-                console.error(`Failed to fetch ${url}, using fallback data.`, e);
-                return fallbackData;
-            }
-        };
-
+        // ... (tu código para cargar datos sigue igual)
         const loadAllData = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                const standings = await fetchData(STANDINGS_URL, initialStandingsData);
-                const scorers = await fetchData(SCORERS_URL, initialScorersData);
-                const news = await fetchData(NEWS_URL, initialNewsData);
-                setStandingsData(standings);
-                setScorersData(scorers);
-                setNewsData(news);
-            } catch (e) {
-                setError("No se pudieron cargar los datos.");
-            } finally {
-                setLoading(false);
-            }
+             // Simulación de carga para que veas los cambios
+             setLoading(true);
+             setStandingsData(initialStandingsData);
+             setScorersData(initialScorersData);
+             setNewsData(initialNewsData);
+             setLoading(false);
         };
-
         loadAllData();
     }, []);
 
@@ -177,24 +147,10 @@ export default function App() {
             const analysisText = await callGeminiAPI(prompt);
             setTeamAnalysis(analysisText || "No se pudo generar el análisis en este momento.");
         } catch (error) {
-            setTeamAnalysis("Ocurrió un error al generar el análisis.");
+            console.error(error);
+            setTeamAnalysis("Ocurrió un error al generar el análisis. Verifica la configuración de la API Key.");
         } finally {
             setIsAnalysisLoading(false);
-        }
-    };
-
-    const handleGenerateSummary = async () => {
-        setIsSummaryLoading(true);
-        setJournalSummary('');
-        const topTeams = standingsData.slice(0, 5).map(t => `${t.equipo} (${t.pts} pts)`).join(', ');
-        try {
-            const prompt = `Eres un periodista deportivo para una liga de fútbol local. La tabla de posiciones después de la última jornada tiene en los primeros puestos a: ${topTeams}. Escribe un resumen emocionante y breve (un párrafo de 4-5 frases) sobre la situación actual de la liga. Menciona al líder, alguna sorpresa, y crea expectación para los próximos partidos.`;
-            const summaryText = await callGeminiAPI(prompt);
-            setJournalSummary(summaryText || "No se pudo generar el resumen en este momento.");
-        } catch (error) {
-            setJournalSummary("Ocurrió un error al generar el resumen.");
-        } finally {
-            setIsSummaryLoading(false);
         }
     };
     
@@ -204,7 +160,8 @@ export default function App() {
         switch (activeView) {
             case 'standings': return <StandingsTable data={standingsData} onTeamClick={handleTeamClick} />;
             case 'scorers': return <ScorersTable data={scorersData} />;
-            case 'news': return <NewsSection data={newsData} onGenerateSummary={handleGenerateSummary} summary={journalSummary} isSummaryLoading={isSummaryLoading}/>;
+            // --- Llamada al componente de noticias MODIFICADO ---
+            case 'news': return <NewsSection data={newsData} />;
             default: return <StandingsTable data={standingsData} onTeamClick={handleTeamClick} />;
         }
     };
@@ -217,12 +174,13 @@ export default function App() {
                 {renderContent()}
             </div>
             
-            <GeminiAnalysisModal 
+            {/* El modal solo se muestra si isModalOpen es true */}
+            {isModalOpen && <GeminiAnalysisModal 
                 team={selectedTeam} 
                 analysis={teamAnalysis}
                 isLoading={isAnalysisLoading}
                 onClose={() => setIsModalOpen(false)} 
-            />
+            />}
         </>
     );
 }
