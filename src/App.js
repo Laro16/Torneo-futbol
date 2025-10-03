@@ -10,9 +10,14 @@ const initialScorersData = [ { jugador: 'Juan Perez', equipo: 'LA-PLEBE', goles:
 // DEJAMOS EL ARRAY DE NOTICIAS VACÍO PARA PROBAR EL MENSAJE
 const initialNewsData = [];
 
-// --- URLs de Google Sheets (Publicado como CSV) ---
-const STANDINGS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfPgrAnVvcoHmUhsIWAw3RksYuqMfwwocIUQpga26AqlRyOcqWVFoit_haKgJ3d2FU9FoU6G2Swoao/pub?gid=1191349899&single=true&output=csv';
-const SCORERS_URL = 'https://docs.google.com/spreadsheets/d/1lewQR_Cr0ZtBBJpMs9UGGDr5h8xArjJ448j6ydRLV20/edit?gid=1191349899#gid=1191349899';
+// --- URLs CORREGIDAS ---
+// Apunta a la primera hoja (gid=0) que es la de Posiciones
+const STANDINGS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfPgrAnVvcoHmUhsIWAw3RksYuqMfwwocIUQpga26AqlRyOcqWVFoit_haKgJ3d2FU9FoU6G2Swoao/pub?gid=0&single=true&output=csv';
+
+// Usa el link de publicación (no el de edición) con el gid de Goleadores
+const SCORERS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfPgrAnVvcoHmUhsIWAw3RksYuqMfwwocIUQpga26AqlRyOcqWVFoit_haKgJ3d2FU9FoU6G2Swoao/pub?gid=1191349899&single=true&output=csv';
+
+// Este ya estaba bien, lo dejamos como está
 const NEWS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfPgrAnVvcoHmUhsIWAw3RksYuqMfwwocIUQpga26AqlRyOcqWVFoit_haKgJ3d2FU9FoU6G2Swoao/pub?gid=747825916&single=true&output=csv';
 
 // --- Gemini API Helper ---
