@@ -21,7 +21,7 @@ const initialScorersData = [ { jugador: 'Juan Perez', equipo: 'LA-PLEBE', goles:
 const initialNewsData = [ { titulo: '¡LA-PLEBE sigue imparable!', fecha: '01/10/2025', contenido: 'El equipo de LA-PLEBE consiguió su sexta victoria consecutiva y se afianza en el liderato de la liga.' }, { titulo: 'Próxima jornada: Duelos clave', fecha: '28/09/2025', contenido: 'La jornada 7 nos trae enfrentamientos directos en la parte alta de la tabla que podrían definir el rumbo del campeonato.' }, ];
 
 // --- URLs de Google Sheets (Publicado como CSV) ---
-const STANDINGS_URL = 'URL_CSV_DE_POSICIONES_AQUI';
+const STANDINGS_URL = 'https://docs.google.com/spreadsheets/d/1lewQR_Cr0ZtBBJpMs9UGGDr5h8xArjJ448j6ydRLV20/edit?gid=0#gid=0';
 const SCORERS_URL = 'URL_CSV_DE_GOLEADORES_AQUI';
 const NEWS_URL = 'URL_CSV_DE_NOTICIAS_AQUI';
 
