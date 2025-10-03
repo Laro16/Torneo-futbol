@@ -194,43 +194,6 @@ tr:hover {
 .news-card h2 { margin-top: 0; color: var(--accent-blue); }
 .news-date { font-size: 0.9em; color: var(--text-secondary); margin-bottom: 10px; }
 
-.summary-generator { 
-    margin-bottom: 24px; 
-    text-align: center; 
-}
-.summary-generator button { 
-    background: var(--accent-blue); 
-    color: var(--bg-dark); 
-    border: none; 
-    padding: 12px 24px; 
-    border-radius: 8px; 
-    font-family: inherit;
-    font-weight: 700; 
-    font-size: 16px; 
-    cursor: pointer; 
-    transition: all 0.2s ease; 
-}
-.summary-generator button:hover:not(:disabled) { 
-    transform: translateY(-2px); 
-    box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3); 
-}
-.summary-generator button:disabled { 
-    background: var(--bg-light); 
-    cursor: not-allowed; 
-}
-.summary-card { 
-    background: rgba(56, 189, 248, 0.1); 
-    border-left: 4px solid var(--accent-blue); 
-    padding: 15px; 
-    border-radius: 8px; 
-    margin-top: 16px; 
-    text-align: left; 
-}
-.summary-card p { 
-    margin: 0; 
-    font-style: italic; 
-}
-
 /* --- Spinner de Carga Principal --- */
 .spinner-container {
     text-align: center;
@@ -244,4 +207,50 @@ tr:hover {
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 0 auto 16px;
+}
+
+/* --- Estilos para las Llaves (Bracket) --- */
+.bracket-container {
+    display: flex;
+    overflow-x: auto;
+    padding: 20px 0;
+    gap: 20px;
+}
+.round {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    min-width: 200px;
+}
+.round h2 {
+    text-align: center;
+    margin: 0;
+    color: var(--accent-blue);
+}
+.matches {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.match {
+    background-color: var(--bg-medium);
+    border-radius: 8px;
+    padding: 10px;
+    border-left: 3px solid var(--bg-light);
+}
+.team {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px;
+    color: var(--text-secondary);
+}
+.team span:last-child {
+    font-weight: bold;
+}
+.winner {
+    color: var(--text-primary);
+    font-weight: bold;
+}
+.winner span:last-child {
+    color: var(--pos-positive);
 }
