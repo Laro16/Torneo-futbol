@@ -21,9 +21,9 @@ const initialScorersData = [ { jugador: 'Juan Perez', equipo: 'LA-PLEBE', goles:
 const initialNewsData = [ { titulo: '¡LA-PLEBE sigue imparable!', fecha: '01/10/2025', contenido: 'El equipo de LA-PLEBE consiguió su sexta victoria consecutiva y se afianza en el liderato de la liga.' }, { titulo: 'Próxima jornada: Duelos clave', fecha: '28/09/2025', contenido: 'La jornada 7 nos trae enfrentamientos directos en la parte alta de la tabla que podrían definir el rumbo del campeonato.' }, ];
 
 // --- URLs de Google Sheets (Publicado como CSV) ---
-const STANDINGS_URL = 'https://docs.google.com/spreadsheets/d/1lewQR_Cr0ZtBBJpMs9UGGDr5h8xArjJ448j6ydRLV20/edit?gid=0#gid=0';
-const SCORERS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfPgrAnVvcoHmUhsIWAw3RksYuqMfwwocIUQpga26AqlRyOcqWVFoit_haKgJ3d2FU9FoU6G2Swoao/pubhtml';
-const NEWS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfPgrAnVvcoHmUhsIWAw3RksYuqMfwwocIUQpga26AqlRyOcqWVFoit_haKgJ3d2FU9FoU6G2Swoao/pubhtml';
+const STANDINGS_URL = 'https://docs.google.com/spreadsheets/d/1lewQR_Cr0ZtBBJpMs9UGGDr5h8xArjJ448j6ydRLV20/edit?usp=sharing';
+const SCORERS_URL = 'https://docs.google.com/spreadsheets/d/1lewQR_Cr0ZtBBJpMs9UGGDr5h8xArjJ448j6ydRLV20/edit?usp=sharing';
+const NEWS_URL = 'https://docs.google.com/spreadsheets/d/1lewQR_Cr0ZtBBJpMs9UGGDr5h8xArjJ448j6ydRLV20/edit?usp=sharing';
 
 // --- Gemini API Helper ---
 const callGeminiAPI = async (prompt) => {
