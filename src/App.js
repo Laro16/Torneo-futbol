@@ -22,8 +22,8 @@ const initialNewsData = [ { titulo: '¡LA-PLEBE sigue imparable!', fecha: '01/10
 
 // --- URLs de Google Sheets (Publicado como CSV) ---
 const STANDINGS_URL = 'https://docs.google.com/spreadsheets/d/1lewQR_Cr0ZtBBJpMs9UGGDr5h8xArjJ448j6ydRLV20/edit?usp=sharing';
-const SCORERS_URL = 'https://docs.google.com/spreadsheets/d/1lewQR_Cr0ZtBBJpMs9UGGDr5h8xArjJ448j6ydRLV20/edit?usp=sharing';
-const NEWS_URL = 'https://docs.google.com/spreadsheets/d/1lewQR_Cr0ZtBBJpMs9UGGDr5h8xArjJ448j6ydRLV20/edit?usp=sharing';
+const SCORERS_URL = 'https://docs.google.com/spreadsheets/d/1lewQR_Cr0ZtBBJpMs9UGGDr5h8xArjJ448j6ydRLV20/edit?gid=1191349899#gid=1191349899';
+const NEWS_URL = 'https://docs.google.com/spreadsheets/d/1lewQR_Cr0ZtBBJpMs9UGGDr5h8xArjJ448j6ydRLV20/edit?gid=747825916#gid=747825916';
 
 // --- Gemini API Helper ---
 const callGeminiAPI = async (prompt) => {
