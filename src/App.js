@@ -11,9 +11,9 @@ const initialScorersData = [ { jugador: 'Juan Perez', equipo: 'LA-PLEBE', goles:
 const initialNewsData = [];
 
 // --- URLs de Google Sheets (Publicado como CSV) ---
-const STANDINGS_URL = 'URL_CSV_DE_POSICIONES_AQUI';
-const SCORERS_URL = 'URL_CSV_DE_GOLEADORES_AQUI';
-const NEWS_URL = 'URL_CSV_DE_NOTICIAS_AQUI';
+const STANDINGS_URL = 'https://docs.google.com/spreadsheets/d/1lewQR_Cr0ZtBBJpMs9UGGDr5h8xArjJ448j6ydRLV20/edit?gid=0#gid=0';
+const SCORERS_URL = 'https://docs.google.com/spreadsheets/d/1lewQR_Cr0ZtBBJpMs9UGGDr5h8xArjJ448j6ydRLV20/edit?gid=1191349899#gid=1191349899';
+const NEWS_URL = 'https://docs.google.com/spreadsheets/d/1lewQR_Cr0ZtBBJpMs9UGGDr5h8xArjJ448j6ydRLV20/edit?gid=747825916#gid=747825916';
 
 // --- Gemini API Helper ---
 const callGeminiAPI = async (prompt) => {
