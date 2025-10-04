@@ -209,48 +209,116 @@ tr:hover {
     margin: 0 auto 16px;
 }
 
-/* --- Estilos para las Llaves (Bracket) --- */
-.bracket-container {
+/* --- ESTILOS PARA LAS LLAVES (ESTILO CHAMPIONS) --- */
+.bracket-container-champions {
     display: flex;
+    justify-content: center;
     overflow-x: auto;
-    padding: 20px 0;
+    padding: 30px;
+    gap: 50px; /* Espacio entre rondas */
+}
+
+.round-champions {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     gap: 20px;
+    min-width: 220px;
 }
-.round {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-    min-width: 200px;
-}
-.round h2 {
+
+.round-champions h2 {
     text-align: center;
-    margin: 0;
+    margin: 0 0 20px 0;
     color: var(--accent-blue);
+    text-transform: uppercase;
+    font-size: 1.2em;
+    letter-spacing: 1px;
 }
-.matches {
+
+.matches-champions {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    justify-content: center;
+    flex-grow: 1;
+    gap: 50px; /* Espacio vertical entre partidos */
 }
-.match {
+
+.match-wrapper {
+    position: relative;
+}
+
+.match-champions {
     background-color: var(--bg-medium);
     border-radius: 8px;
-    padding: 10px;
-    border-left: 3px solid var(--bg-light);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--bg-light);
 }
-.team {
+
+/* --- Líneas de Conexión --- */
+/* Línea horizontal que sale de cada partido */
+.match-wrapper:not(:first-child .round-champions > .matches-champions > &)::after {
+    content: '';
+    position: absolute;
+    width: 25px; /* Mitad del espacio entre rondas */
+    height: 2px;
+    background-color: var(--bg-light);
+    top: 50%;
+    left: -25px; /* Sale hacia la izquierda */
+}
+
+/* Línea vertical que conecta los partidos */
+.match-wrapper:nth-child(odd)::before {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: calc(100% + 50px); /* Altura total + espacio entre partidos */
+    background-color: var(--bg-light);
+    top: 50%;
+    left: -25px;
+}
+
+/* Ocultar líneas para la primera ronda */
+.bracket-container-champions > .round-champions:first-child .match-wrapper::before,
+.bracket-container-champions > .round-champions:first-child .match-wrapper::after {
+    display: none;
+}
+
+
+.team-champions {
     display: flex;
     justify-content: space-between;
-    padding: 5px;
+    align-items: center;
+    padding: 12px 15px;
     color: var(--text-secondary);
+    transition: all 0.2s ease-in-out;
 }
-.team span:last-child {
-    font-weight: bold;
+
+.team-champions:first-child {
+    border-bottom: 1px solid var(--bg-light);
 }
-.winner {
+
+.team-name {
+    font-size: 1em;
+}
+
+.team-score {
+    font-size: 1.1em;
+    font-weight: 700;
+    background-color: var(--bg-light);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.team-champions.winner {
     color: var(--text-primary);
-    font-weight: bold;
+    font-weight: 700;
 }
-.winner span:last-child {
-    color: var(--pos-positive);
+
+.team-champions.winner .team-name {
+    color: var(--accent-blue);
+}
+
+.team-champions.winner .team-score {
+    background-color: var(--pos-positive);
+    color: var(--bg-dark);
 }
