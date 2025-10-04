@@ -63,10 +63,14 @@ const NewsSection = ({ data }) => {
     return ( <div className="news-container">{sortedData.map((item, index) => ( <div className="news-card" key={index}><h2>{item.titulo}</h2><p className="news-date">{item.fecha}</p><p>{item.contenido}</p></div> ))}</div> );
 };
 
-// --- NUEVO COMPONENTE PARA LAS LLAVES (ESTILO CHAMPIONS) ---
+// --- COMPONENTE PARA LAS LLAVES (ESTILO CHAMPIONS CON FONDO) ---
 const BracketView = ({ data }) => {
     if (!data || data.length === 0) {
-        return <p style={{ textAlign: 'center', padding: '40px' }}>La fase de llaves aún no ha comenzado.</p>;
+        return (
+            <div className="bracket-section-background">
+                <p style={{ textAlign: 'center', padding: '40px', color: 'var(--text-primary)' }}>La fase de llaves aún no ha comenzado.</p>
+            </div>
+        );
     }
 
     const rounds = data.reduce((acc, match) => {
@@ -80,33 +84,35 @@ const BracketView = ({ data }) => {
     const orderedRounds = roundOrder.filter(roundName => rounds[roundName]);
 
     return (
-        <div className="bracket-container-champions">
-            {orderedRounds.map(roundName => (
-                <div className="round-champions" key={roundName}>
-                    <h2>{roundName}</h2>
-                    <div className="matches-champions">
-                        {rounds[roundName].map(match => {
-                            const isTeam1Winner = parseInt(match.equipo1_marcador) > parseInt(match.equipo2_marcador);
-                            const isTeam2Winner = parseInt(match.equipo2_marcador) > parseInt(match.equipo1_marcador);
-                            
-                            return (
-                                <div className="match-wrapper" key={match.id}>
-                                    <div className="match-champions">
-                                        <div className={`team-champions ${match.estado === 'Jugado' && isTeam1Winner ? 'winner' : ''}`}>
-                                            <span className="team-name">{match.equipo1_nombre || 'A definir'}</span>
-                                            <span className="team-score">{match.equipo1_marcador}</span>
-                                        </div>
-                                        <div className={`team-champions ${match.estado === 'Jugado' && isTeam2Winner ? 'winner' : ''}`}>
-                                            <span className="team-name">{match.equipo2_nombre || 'A definir'}</span>
-                                            <span className="team-score">{match.equipo2_marcador}</span>
+        <div className="bracket-section-background"> 
+            <div className="bracket-container-champions">
+                {orderedRounds.map(roundName => (
+                    <div className="round-champions" key={roundName}>
+                        <h2>{roundName}</h2>
+                        <div className="matches-champions">
+                            {rounds[roundName].map(match => {
+                                const isTeam1Winner = parseInt(match.equipo1_marcador) > parseInt(match.equipo2_marcador);
+                                const isTeam2Winner = parseInt(match.equipo2_marcador) > parseInt(match.equipo1_marcador);
+                                
+                                return (
+                                    <div className="match-wrapper" key={match.id}>
+                                        <div className="match-champions">
+                                            <div className={`team-champions ${match.estado === 'Jugado' && isTeam1Winner ? 'winner' : ''}`}>
+                                                <span className="team-name">{match.equipo1_nombre || 'A definir'}</span>
+                                                <span className="team-score">{match.equipo1_marcador}</span>
+                                            </div>
+                                            <div className={`team-champions ${match.estado === 'Jugado' && isTeam2Winner ? 'winner' : ''}`}>
+                                                <span className="team-name">{match.equipo2_nombre || 'A definir'}</span>
+                                                <span className="team-score">{match.equipo2_marcador}</span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            );
-                        })}
+                                );
+                            })}
+                        </div>
                     </div>
-                </div>
-            ))}
+                ))}
+            </div>
         </div>
     );
 };
