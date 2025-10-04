@@ -9,8 +9,7 @@ const initialNewsData = [];
 const STANDINGS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfPgrAnVvcoHmUhsIWAw3RksYuqMfwwocIUQpga26AqlRyOcqWVFoit_haKgJ3d2FU9FoU6G2Swoao/pub?gid=0&single=true&output=csv';
 const SCORERS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfPgrAnVvcoHmUhsIWAw3RksYuqMfwwocIUQpga26AqlRyOcqWVFoit_haKgJ3d2FU9FoU6G2Swoao/pub?gid=1191349899&single=true&output=csv';
 const NEWS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfPgrAnVvcoHmUhsIWAw3RksYuqMfwwocIUQpga26AqlRyOcqWVFoit_haKgJ3d2FU9FoU6G2Swoao/pub?gid=747825916&single=true&output=csv';
-// ===== ESTA ES LA URL CORREGIDA PARA LAS LLAVES =====
-const BRACKET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfPgrAnVvcoHmUhsIWAw3RksYuqMfwwocIUQpga26AqlRyOcqWVFoit_haKgJ3d2FU9FoU6G2Swoao/pub?gid=1728980058&single=true&output=csv'; // <-- VERIFICA QUE ESTE gid SEA EL DE TU HOJA LLAVES
+const BRACKET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfPgrAnVvcoHmUhsIWAw3RksYuqMfwwocIUQpga26AqlRyOcqWVFoit_haKgJ3d2FU9FoU6G2Swoao/pub?gid=1728980058&single=true&output=csv';
 
 // --- Gemini API Helper ---
 const callGeminiAPI = async (prompt) => {
@@ -64,37 +63,43 @@ const NewsSection = ({ data }) => {
     return ( <div className="news-container">{sortedData.map((item, index) => ( <div className="news-card" key={index}><h2>{item.titulo}</h2><p className="news-date">{item.fecha}</p><p>{item.contenido}</p></div> ))}</div> );
 };
 
+// --- NUEVO COMPONENTE PARA LAS LLAVES (ESTILO CHAMPIONS) ---
 const BracketView = ({ data }) => {
     if (!data || data.length === 0) {
         return <p style={{ textAlign: 'center', padding: '40px' }}>La fase de llaves aún no ha comenzado.</p>;
     }
+
     const rounds = data.reduce((acc, match) => {
         const round = match.ronda;
         if (!acc[round]) { acc[round] = []; }
         acc[round].push(match);
         return acc;
     }, {});
+    
     const roundOrder = ['Octavos', 'Cuartos', 'Semifinal', 'Final'];
     const orderedRounds = roundOrder.filter(roundName => rounds[roundName]);
 
     return (
-        <div className="bracket-container">
+        <div className="bracket-container-champions">
             {orderedRounds.map(roundName => (
-                <div className="round" key={roundName}>
+                <div className="round-champions" key={roundName}>
                     <h2>{roundName}</h2>
-                    <div className="matches">
+                    <div className="matches-champions">
                         {rounds[roundName].map(match => {
                             const isTeam1Winner = parseInt(match.equipo1_marcador) > parseInt(match.equipo2_marcador);
                             const isTeam2Winner = parseInt(match.equipo2_marcador) > parseInt(match.equipo1_marcador);
+                            
                             return (
-                                <div className="match" key={match.id}>
-                                    <div className={`team ${match.estado === 'Jugado' && isTeam1Winner ? 'winner' : ''}`}>
-                                        <span>{match.equipo1_nombre || '??'}</span>
-                                        <span>{match.equipo1_marcador}</span>
-                                    </div>
-                                    <div className={`team ${match.estado === 'Jugado' && isTeam2Winner ? 'winner' : ''}`}>
-                                        <span>{match.equipo2_nombre || '??'}</span>
-                                        <span>{match.equipo2_marcador}</span>
+                                <div className="match-wrapper" key={match.id}>
+                                    <div className="match-champions">
+                                        <div className={`team-champions ${match.estado === 'Jugado' && isTeam1Winner ? 'winner' : ''}`}>
+                                            <span className="team-name">{match.equipo1_nombre || 'A definir'}</span>
+                                            <span className="team-score">{match.equipo1_marcador}</span>
+                                        </div>
+                                        <div className={`team-champions ${match.estado === 'Jugado' && isTeam2Winner ? 'winner' : ''}`}>
+                                            <span className="team-name">{match.equipo2_nombre || 'A definir'}</span>
+                                            <span className="team-score">{match.equipo2_marcador}</span>
+                                        </div>
                                     </div>
                                 </div>
                             );
