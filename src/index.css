@@ -17,9 +17,17 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--bg-dark);
+  
+  /* --- NUEVO FONDO DINÁMICO --- */
+  background-color: var(--bg-dark); /* Color base si la animación no carga */
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(56, 189, 248, 0.15), transparent 40%),
+    radial-gradient(circle at 75% 75%, rgba(56, 189, 248, 0.1), transparent 40%),
+    linear-gradient(145deg, var(--bg-dark), #0a0e1a);
+  background-size: 200% 200%;
+  animation: moveAurora 25s ease-in-out infinite alternate;
+
   color: var(--text-primary);
-  /* Asegura que el texto sea legible en pantallas pequeñas */
   -webkit-text-size-adjust: 100%;
 }
 
@@ -28,6 +36,8 @@ body {
   max-width: 900px;
   margin: 20px auto;
   padding: 20px;
+  position: relative; /* Para asegurar que el contenido esté sobre el fondo */
+  z-index: 1;
 }
 
 .main-title {
@@ -216,7 +226,7 @@ tr:hover {
     background: 
         radial-gradient(circle at top left, rgba(255, 255, 255, 0.05) 0%, transparent 20%),
         radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.05) 0%, transparent 20%),
-        linear-gradient(145deg, var(--bg-dark), #0a0e1a); 
+        linear-gradient(145deg, #1a202c, #111827); 
     padding: 20px;
     border-radius: 15px;
     margin-top: 10px;
@@ -240,19 +250,13 @@ tr:hover {
     z-index: 0;
 }
 
-@keyframes pulseGlow {
-    0% { transform: scale(1) translate(0, 0); opacity: 0.6; }
-    50% { transform: scale(1.2) translate(20px, 20px); opacity: 0.8; }
-    100% { transform: scale(1) translate(0, 0); opacity: 0.6; }
-}
-
 /* --- ESTILOS PARA LAS LLAVES (ESTILO CHAMPIONS) --- */
 .bracket-container-champions {
     display: flex;
-    justify-content: flex-start; /* Alinea las rondas a la izquierda en móvil */
+    justify-content: flex-start;
     overflow-x: auto;
     padding: 20px;
-    gap: 40px; /* Espacio entre rondas */
+    gap: 40px; 
     position: relative;
     z-index: 1;
 }
@@ -280,7 +284,7 @@ tr:hover {
     flex-direction: column;
     justify-content: center;
     flex-grow: 1;
-    gap: 40px; /* Espacio vertical entre partidos */
+    gap: 40px; 
 }
 
 .match-wrapper {
@@ -298,18 +302,18 @@ tr:hover {
 .match-wrapper:not(:first-child .round-champions > .matches-champions > &)::after {
     content: '';
     position: absolute;
-    width: 20px; /* Mitad del espacio entre rondas */
+    width: 20px; 
     height: 2px;
     background-color: var(--bg-light);
     top: 50%;
-    left: -20px; /* Sale hacia la izquierda */
+    left: -20px; 
 }
 
 .match-wrapper:nth-child(odd)::before {
     content: '';
     position: absolute;
     width: 2px;
-    height: calc(100% + 40px); /* Altura total + espacio entre partidos */
+    height: calc(100% + 40px);
     background-color: var(--bg-light);
     top: 50%;
     left: -20px;
@@ -319,7 +323,6 @@ tr:hover {
 .bracket-container-champions > .round-champions:first-child .match-wrapper::after {
     display: none;
 }
-
 
 .team-champions {
     display: flex;
@@ -360,99 +363,97 @@ tr:hover {
     color: var(--bg-dark);
 }
 
-
 /* ================================================================== */
 /* =====            ESTILOS PARA PANTALLAS MÓVILES                ===== */
 /* ================================================================== */
 
 @media (max-width: 768px) {
     body {
-        font-size: 14px; /* Reduce el tamaño base de la fuente */
+        font-size: 14px;
     }
-
     .container {
-        padding: 10px; /* Menos padding en los bordes */
+        padding: 10px;
         margin: 10px auto;
     }
-
     .main-title {
-        font-size: 2rem; /* Título principal más pequeño */
+        font-size: 2rem;
     }
-
     .navbar button {
-        padding: 8px 12px; /* Botones de navegación más pequeños */
+        padding: 8px 12px;
         font-size: 0.9rem;
         margin: 0 2px;
     }
-
-    /* Hace las tablas más compactas */
     th, td {
         padding: 8px 6px;
         font-size: 0.85rem;
     }
-    
     .col-team {
-        min-width: 120px; /* Evita que el nombre del equipo se comprima demasiado */
+        min-width: 120px;
     }
-
-    /* Adapta el modal */
     .modal-content {
         padding: 20px;
     }
-    
     .modal-content h2 {
         font-size: 1.5rem;
     }
-
-    /* Las estadísticas del modal se apilan verticalmente */
     .stats-grid {
         grid-template-columns: 1fr;
         gap: 8px;
     }
-
-    /* Adapta las llaves */
     .bracket-section-background {
         padding: 10px 0;
     }
-
     .bracket-container-champions {
         padding: 15px;
-        gap: 20px; /* Reduce el espacio entre rondas */
+        gap: 20px;
     }
-
     .round-champions {
-        min-width: 160px; /* Rondas más angostas */
+        min-width: 160px;
         gap: 15px;
     }
-    
     .round-champions h2 {
         font-size: 1em;
     }
-
     .matches-champions {
-        gap: 30px; /* Reduce espacio entre partidos */
+        gap: 30px;
     }
-
     .team-champions {
         padding: 8px 10px;
     }
-
     .team-name {
         font-size: 0.8em;
     }
-
     .team-score {
         font-size: 0.9em;
     }
-
-    /* Ajusta las líneas de conexión */
     .match-wrapper:not(:first-child .round-champions > .matches-champions > &)::after {
         width: 10px;
         left: -10px;
     }
-
     .match-wrapper:nth-child(odd)::before {
         height: calc(100% + 30px);
         left: -10px;
     }
+}
+
+/* ================================================================== */
+/* =====        ANIMACIÓN PARA EL FONDO PRINCIPAL                 ===== */
+/* ================================================================== */
+
+@keyframes moveAurora {
+    0% {
+        background-position: 0% 0%;
+    }
+    50% {
+        background-position: 100% 100%;
+    }
+    100% {
+        background-position: 0% 0%;
+    }
+}
+
+@keyframes pulseGlow {
+    0% { transform: scale(1) translate(0, 0); opacity: 0.6; }
+    50% { transform: scale(1.2) translate(20px, 20px); opacity: 0.8; }
+    100% { transform: scale(1) translate(0, 0); opacity: 0.6; }
 }
