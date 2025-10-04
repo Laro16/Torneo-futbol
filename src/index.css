@@ -19,6 +19,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--bg-dark);
   color: var(--text-primary);
+  /* Asegura que el texto sea legible en pantallas pequeñas */
+  -webkit-text-size-adjust: 100%;
 }
 
 /* --- Contenedor Principal --- */
@@ -69,7 +71,7 @@ body {
 
 /* --- Tablas --- */
 .table-wrap {
-  overflow-x: auto;
+  overflow-x: auto; /* Permite scroll horizontal en tablas */
 }
 
 table {
@@ -85,6 +87,7 @@ th, td {
   padding: 12px 15px;
   text-align: center;
   border-bottom: 1px solid var(--bg-light);
+  white-space: nowrap; /* Evita que el texto de las celdas se parta */
 }
 
 th {
@@ -179,8 +182,7 @@ tr:hover {
     to { transform: rotate(360deg); }
 }
 
-
-/* --- Sección de Noticias y Resumen --- */
+/* --- Sección de Noticias --- */
 .news-container {
     display: flex;
     flex-direction: column;
@@ -247,10 +249,10 @@ tr:hover {
 /* --- ESTILOS PARA LAS LLAVES (ESTILO CHAMPIONS) --- */
 .bracket-container-champions {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start; /* Alinea las rondas a la izquierda en móvil */
     overflow-x: auto;
-    padding: 30px;
-    gap: 50px; /* Espacio entre rondas */
+    padding: 20px;
+    gap: 40px; /* Espacio entre rondas */
     position: relative;
     z-index: 1;
 }
@@ -260,7 +262,7 @@ tr:hover {
     flex-direction: column;
     justify-content: center;
     gap: 20px;
-    min-width: 220px;
+    min-width: 200px;
 }
 
 .round-champions h2 {
@@ -278,7 +280,7 @@ tr:hover {
     flex-direction: column;
     justify-content: center;
     flex-grow: 1;
-    gap: 50px; /* Espacio vertical entre partidos */
+    gap: 40px; /* Espacio vertical entre partidos */
 }
 
 .match-wrapper {
@@ -296,21 +298,21 @@ tr:hover {
 .match-wrapper:not(:first-child .round-champions > .matches-champions > &)::after {
     content: '';
     position: absolute;
-    width: 25px; 
+    width: 20px; /* Mitad del espacio entre rondas */
     height: 2px;
     background-color: var(--bg-light);
     top: 50%;
-    left: -25px; 
+    left: -20px; /* Sale hacia la izquierda */
 }
 
 .match-wrapper:nth-child(odd)::before {
     content: '';
     position: absolute;
     width: 2px;
-    height: calc(100% + 50px);
+    height: calc(100% + 40px); /* Altura total + espacio entre partidos */
     background-color: var(--bg-light);
     top: 50%;
-    left: -25px;
+    left: -20px;
 }
 
 .bracket-container-champions > .round-champions:first-child .match-wrapper::before,
@@ -318,11 +320,12 @@ tr:hover {
     display: none;
 }
 
+
 .team-champions {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 15px;
+    padding: 10px 12px;
     color: var(--text-secondary);
     transition: all 0.2s ease-in-out;
 }
@@ -332,11 +335,11 @@ tr:hover {
 }
 
 .team-name {
-    font-size: 1em;
+    font-size: 0.9em;
 }
 
 .team-score {
-    font-size: 1.1em;
+    font-size: 1em;
     font-weight: 700;
     background-color: var(--bg-light);
     padding: 2px 8px;
@@ -355,4 +358,101 @@ tr:hover {
 .team-champions.winner .team-score {
     background-color: var(--pos-positive);
     color: var(--bg-dark);
+}
+
+
+/* ================================================================== */
+/* =====            ESTILOS PARA PANTALLAS MÓVILES                ===== */
+/* ================================================================== */
+
+@media (max-width: 768px) {
+    body {
+        font-size: 14px; /* Reduce el tamaño base de la fuente */
+    }
+
+    .container {
+        padding: 10px; /* Menos padding en los bordes */
+        margin: 10px auto;
+    }
+
+    .main-title {
+        font-size: 2rem; /* Título principal más pequeño */
+    }
+
+    .navbar button {
+        padding: 8px 12px; /* Botones de navegación más pequeños */
+        font-size: 0.9rem;
+        margin: 0 2px;
+    }
+
+    /* Hace las tablas más compactas */
+    th, td {
+        padding: 8px 6px;
+        font-size: 0.85rem;
+    }
+    
+    .col-team {
+        min-width: 120px; /* Evita que el nombre del equipo se comprima demasiado */
+    }
+
+    /* Adapta el modal */
+    .modal-content {
+        padding: 20px;
+    }
+    
+    .modal-content h2 {
+        font-size: 1.5rem;
+    }
+
+    /* Las estadísticas del modal se apilan verticalmente */
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    /* Adapta las llaves */
+    .bracket-section-background {
+        padding: 10px 0;
+    }
+
+    .bracket-container-champions {
+        padding: 15px;
+        gap: 20px; /* Reduce el espacio entre rondas */
+    }
+
+    .round-champions {
+        min-width: 160px; /* Rondas más angostas */
+        gap: 15px;
+    }
+    
+    .round-champions h2 {
+        font-size: 1em;
+    }
+
+    .matches-champions {
+        gap: 30px; /* Reduce espacio entre partidos */
+    }
+
+    .team-champions {
+        padding: 8px 10px;
+    }
+
+    .team-name {
+        font-size: 0.8em;
+    }
+
+    .team-score {
+        font-size: 0.9em;
+    }
+
+    /* Ajusta las líneas de conexión */
+    .match-wrapper:not(:first-child .round-champions > .matches-champions > &)::after {
+        width: 10px;
+        left: -10px;
+    }
+
+    .match-wrapper:nth-child(odd)::before {
+        height: calc(100% + 30px);
+        left: -10px;
+    }
 }
