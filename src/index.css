@@ -30,7 +30,7 @@ body {
   position: relative;
 }
 
-/* --- Fondo de "Aurora Boreal" Dinámico --- */
+/* --- Fondo de "Aurora Boreal" y Estadio Dinámico --- */
 body::before {
     content: '';
     position: fixed;
@@ -38,18 +38,32 @@ body::before {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: radial-gradient(circle at 15% 25%, rgba(56, 189, 248, 0.1), transparent 40%),
-                radial-gradient(circle at 75% 85%, rgba(139, 92, 246, 0.1), transparent 40%),
-                radial-gradient(circle at 45% 10%, rgba(34, 197, 94, 0.08), transparent 40%),
-                linear-gradient(145deg, var(--bg-dark), #0d121c);
-    background-size: 200% 200%;
+    /* CAMBIO: Se añade la URL del estadio al final de la lista de fondos */
+    background: 
+        /* Capas de Aurora (luces de colores) */
+        radial-gradient(circle at 15% 25%, rgba(56, 189, 248, 0.15), transparent 40%),
+        radial-gradient(circle at 75% 85%, rgba(139, 92, 246, 0.15), transparent 40%),
+        radial-gradient(circle at 45% 10%, rgba(34, 197, 94, 0.1), transparent 40%),
+        
+        /* Capa de imagen del estadio */
+        url('https://images.pexels.com/photos/399187/pexels-photo-399187.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'),
+        
+        /* Capa de color base por si la imagen falla */
+        linear-gradient(145deg, var(--bg-dark), #0d121c);
+
+    /* CAMBIO: Estilos para controlar la imagen de fondo */
+    background-size: 200% 200%, 200% 200%, 200% 200%, cover, auto; /* Cover para la imagen del estadio */
+    background-position: 0% 0%, 0% 0%, 0% 0%, center center, 0% 0%;
+    background-attachment: fixed, fixed, fixed, fixed, fixed; /* Fija el estadio para un efecto parallax */
+
     animation: moveAurora 30s ease-in-out infinite alternate;
     z-index: -2;
+    filter: brightness(0.8); /* Oscurece un poco el fondo para que el texto resalte */
 }
 
 @keyframes moveAurora {
-  from { background-position: 0% 0%; }
-  to { background-position: 100% 100%; }
+  from { background-position: 0% 0%, 0% 0%, 0% 0%, center center, 0% 0%; }
+  to { background-position: 100% 100%, 100% 100%, 100% 100%, center center, 0% 0%; }
 }
 
 /* --- Partículas Flotantes (Adorno) --- */
@@ -92,16 +106,16 @@ body::before { content: ''; position: fixed; width: 12px; height: 12px; backgrou
   margin-bottom: 2.5rem;
 }
 
-/* --- Navbar (Adaptada para nueva estructura) --- */
+/* --- Navbar --- */
 .navbar {
   display: flex;
-  justify-content: space-between; /* MODIFICADO */
-  align-items: center; /* MODIFICADO */
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 2rem;
-  background: rgba(31, 41, 55, 0.4);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(30, 41, 59, 0.6); /* --bg-medium con transparencia */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   padding: 0.5rem;
   position: sticky;
@@ -110,13 +124,13 @@ body::before { content: ''; position: fixed; width: 12px; height: 12px; backgrou
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
 }
 
-.nav-left, .nav-right { /* NUEVO */
+.nav-left, .nav-right {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.last-updated { /* NUEVO */
+.last-updated {
   font-size: 0.75rem;
   color: var(--text-secondary);
   opacity: 0.8;
@@ -151,18 +165,18 @@ body::before { content: ''; position: fixed; width: 12px; height: 12px; backgrou
   box-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
 }
 
-.nav-right button { /* Botón de refrescar */
+.nav-right button {
   padding: 8px;
 }
 
-/* --- Controles de Búsqueda y Orden (NUEVO) --- */
+/* --- Controles de Búsqueda y Orden --- */
 .controls-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
   margin-bottom: 1.5rem;
-  flex-wrap: wrap; /* Para que se adapte en pantallas pequeñas */
+  flex-wrap: wrap;
 }
 
 .search-box, .sort-box {
@@ -190,7 +204,7 @@ body::before { content: ''; position: fixed; width: 12px; height: 12px; backgrou
   color: var(--text-secondary);
 }
 
-/* --- Botones Pequeños (NUEVO) --- */
+/* --- Botones Pequeños --- */
 button.small {
   padding: 6px 12px;
   font-size: 0.85rem;
@@ -202,10 +216,14 @@ button.small {
   cursor: pointer;
   transition: all 0.2s ease;
 }
-button.small:hover {
+button.small:hover:not(:disabled) {
   background: var(--bg-light);
   color: var(--text-primary);
   border-color: var(--accent-blue);
+}
+button.small:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 button.small.secondary {
   background: transparent;
@@ -216,8 +234,6 @@ button.small.secondary:hover {
   border-color: var(--bg-light);
 }
 
-
-/* Estilo de foco para accesibilidad */
 :focus-visible {
     outline: 2px solid var(--accent-blue);
     outline-offset: 3px;
@@ -226,12 +242,24 @@ button.small.secondary:hover {
 
 /* --- Tablas --- */
 .table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; background-color: var(--bg-medium); border-radius: 12px; overflow: hidden; box-shadow: 0 8px 30px var(--shadow-color); }
-th, td { padding: 14px 18px; text-align: center; border-bottom: 1px solid var(--bg-light); white-space: nowrap; }
-th { background-color: var(--bg-light); color: var(--text-primary); }
+table { 
+  width: 100%; 
+  border-collapse: collapse; 
+  border-radius: 12px; 
+  overflow: hidden; 
+  box-shadow: 0 8px 30px var(--shadow-color);
+  
+  /* CAMBIO: Se añade transparencia y efecto blur */
+  background-color: rgba(30, 41, 59, 0.8); /* --bg-medium con 80% de opacidad */
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+th, td { padding: 14px 18px; text-align: center; border-bottom: 1px solid rgba(51, 65, 85, 0.7); white-space: nowrap; }
+th { background-color: rgba(51, 65, 85, 0.8); } /* --bg-light con transparencia */
 tr:last-child td { border-bottom: none; }
 tr { transition: background-color 0.2s ease-in-out; }
-tr[style*="cursor: pointer"]:hover { background-color: #2b3a4a; }
+tr[style*="cursor: pointer"]:hover { background-color: rgba(43, 58, 74, 0.9); }
 .col-rank { font-weight: 700; }
 .col-team { text-align: left; }
 .col-pts { font-weight: 700; color: var(--accent-blue); }
@@ -239,8 +267,8 @@ tr[style*="cursor: pointer"]:hover { background-color: #2b3a4a; }
 .pos-negative { color: var(--pos-negative); }
 .rank-1, .rank-2, .rank-3 { background-color: rgba(56, 189, 248, 0.08); }
 
-/* Ícono de Copa para el primer lugar */
-.rank-1 ~ .col-team::before {
+/* Ícono de Copa */
+.standings-body .rank-1 ~ .col-team::before {
     content: '🏆';
     font-size: 1.2em;
     margin-right: 8px;
@@ -250,7 +278,7 @@ tr[style*="cursor: pointer"]:hover { background-color: #2b3a4a; }
 
 /* --- Modal de Análisis --- */
 .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 10, 10, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); }
-.modal-content { background: rgba(31, 41, 55, 0.8); padding: 2rem; border-radius: 16px; max-width: 550px; width: 90%; box-shadow: 0 15px 50px var(--shadow-color); border: 1px solid rgba(255, 255, 255, 0.15); position: relative; }
+.modal-content { background: rgba(30, 41, 59, 0.85); padding: 2rem; border-radius: 16px; max-width: 550px; width: 90%; box-shadow: 0 15px 50px var(--shadow-color); border: 1px solid rgba(255, 255, 255, 0.15); position: relative; }
 .close-button { position: absolute; top: 15px; right: 20px; background: none; border: none; color: var(--text-secondary); font-size: 32px; cursor: pointer; line-height: 1; transition: color 0.2s, transform 0.2s; }
 .close-button:hover { color: var(--accent-blue); transform: rotate(90deg); }
 .modal-content h2 { margin-top: 0; color: var(--accent-blue); text-shadow: 0 0 8px rgba(56, 189, 248, 0.4); }
@@ -263,7 +291,7 @@ tr[style*="cursor: pointer"]:hover { background-color: #2b3a4a; }
 
 /* --- Sección de Noticias --- */
 .news-container { display: flex; flex-direction: column; gap: 1rem; }
-.news-card { background: var(--bg-medium); padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 15px var(--shadow-color); border: 1px solid rgba(255,255,255,0.08); transition: transform 0.2s ease-in-out; }
+.news-card { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 15px var(--shadow-color); border: 1px solid rgba(255,255,255,0.1); transition: transform 0.2s ease-in-out; }
 .news-card:hover { transform: translateY(-5px); }
 .news-card h2 { margin-top: 0; color: var(--accent-blue); text-shadow: 0 0 5px rgba(56, 189, 248, 0.3); }
 .news-date { font-size: 0.9em; color: var(--text-secondary); margin-bottom: 10px; }
@@ -275,8 +303,9 @@ tr[style*="cursor: pointer"]:hover { background-color: #2b3a4a; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* --- Estilos para las Llaves --- */
-.bracket-section-background { background: linear-gradient(145deg, #1a202c, #0f172a); padding: 2rem; border-radius: 15px; box-shadow: 0 8px 30px var(--shadow-color); border: 1px solid rgba(255,255,255,0.08); position: relative; overflow: hidden; }
-.bracket-container-champions { display: flex; justify-content: flex-start; align-items: center; overflow-x: auto; padding: 1rem; gap: 50px; position: relative; z-index: 1; }
+.bracket-section-background { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); padding: 2rem; border-radius: 15px; box-shadow: 0 8px 30px var(--shadow-color); border: 1px solid rgba(255,255,255,0.1); position: relative; overflow: hidden; min-height: 200px; display: flex; justify-content: center; align-items: center; }
+.bracket-section-background .empty-state-message { font-size: 1.1rem; color: var(--text-secondary); font-style: italic; }
+.bracket-container-champions { display: flex; justify-content: flex-start; align-items: center; overflow-x: auto; padding: 1rem; gap: 50px; position: relative; z-index: 1; width: 100%; }
 .round-champions { display: flex; flex-direction: column; gap: 50px; min-width: 220px; position: relative; }
 .round-champions h2 { text-align: center; margin: 0 0 1rem 0; color: var(--accent-blue); text-transform: uppercase; font-size: 1.2em; text-shadow: 0 0 10px rgba(56, 189, 248, 0.5); }
 .matches-champions { display: flex; flex-direction: column; gap: 50px; }
@@ -291,7 +320,7 @@ tr[style*="cursor: pointer"]:hover { background-color: #2b3a4a; }
 .team-champions.winner .team-name { color: var(--accent-blue); }
 .team-champions.winner .team-score { background-color: var(--pos-positive); color: var(--bg-dark); }
 
-/* --- Pie de Página (NUEVO) --- */
+/* --- Pie de Página --- */
 .app-footer {
   text-align: center;
   margin-top: 3rem;
@@ -317,6 +346,6 @@ tr[style*="cursor: pointer"]:hover { background-color: #2b3a4a; }
     .bracket-container-champions { gap: 30px; }
     .round-champions { min-width: 160px; }
     .round-champions:not(:last-child)::after { right: -14px; }
-    .rank-1 ~ .col-team::before { font-size: 1em; }
+    .standings-body .rank-1 ~ .col-team::before { font-size: 1em; }
     .container::before, .container::after, body::after { display: none; }
 }
