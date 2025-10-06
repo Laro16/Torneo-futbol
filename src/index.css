@@ -44,8 +44,8 @@ body::before {
         radial-gradient(circle at 75% 85%, rgba(139, 92, 246, 0.15), transparent 40%),
         radial-gradient(circle at 45% 10%, rgba(34, 197, 94, 0.1), transparent 40%),
         
-        /* Capa de imagen del estadio (AHORA LOCAL) */
-        url('/images/stadium.jpg'),
+        /* CORRECCIÓN: Se quitan las comillas de la URL local */
+        url(/images/stadium.jpg),
         
         /* Capa de color base por si la imagen falla */
         linear-gradient(145deg, var(--bg-dark), #0d121c);
