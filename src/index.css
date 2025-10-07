@@ -193,3 +193,15 @@ tr[style*="cursor: pointer"]:hover { background-color: rgba(43, 58, 74, 0.9); }
     .round-champions:not(:last-child)::after { right: -14px; }
     .standings-body .rank-1 ~ .col-team::before { font-size: 1em; }
 }
+```
+
+### Plan de Acción Final
+
+1.  Asegúrate de que la imagen esté en **`src/images/stadium.jpg`**.
+2.  **Reemplaza por completo** el contenido de tus archivos `App.js` y `index.css` con los códigos que te acabo de dar.
+3.  Guarda todo y sube los cambios a GitHub.
+
+```bash
+git add .
+git commit -m "Solución definitiva de fondo con JS import"
+git push
