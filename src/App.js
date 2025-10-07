@@ -73,7 +73,7 @@ const fetchWithTimeout = async (url, timeout = 10_000) => {
     return res;
   } catch (e) { clearTimeout(id); throw e; }
 };
-const CACHE_PREFIX = 'liga_local_cache_v3_'; // Se cambió la versión del caché
+const CACHE_PREFIX = 'liga_local_cache_v3_';
 const cacheGet = (key, maxAgeMs = 1000 * 60 * 5) => {
   try {
     const raw = localStorage.getItem(CACHE_PREFIX + key); if (!raw) return null;
@@ -124,7 +124,8 @@ export default function App() {
   const analysisControllerRef = useRef(null);
 
   useEffect(() => {
-    document.body.style.backgroundImage = `url(${stadiumImage})`;
+    // AHORA APLICAMOS UN DEGRADADO OSCURO ENCIMA DE LA IMAGEN
+    document.body.style.backgroundImage = `linear-gradient(145deg, rgba(15, 23, 42, 0.4), rgba(13, 18, 28, 0.8)), url(${stadiumImage})`;
     document.body.style.backgroundSize = 'cover';
     document.body.style.backgroundPosition = 'center center';
     document.body.style.backgroundAttachment = 'fixed';
