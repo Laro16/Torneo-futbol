@@ -1,6 +1,10 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import './index.css';
-import stadiumImage from './images/stadium.jpg'; // IMPORTAR la imagen desde JS
+
+// /*
+//   Proyecto: Liga Local (Versión Final Definitiva)
+//   - La imagen de fondo se aplica desde CSS (index.css) mediante body::before
+// */
 
 // --- DATOS INICIALES Y URLs ---
 const initialStandingsData = [{ equipo: 'LA-PLEBE', jj: 6, pg: 6, pe: 0, pp: 0, gf: 24, gc: 7, pts: 18 }];
@@ -89,7 +93,7 @@ const callGeminiAPI = async (prompt, signal) => {
   return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
 };
 
-// --- Componentes de UI (idénticos a los tuyos) ---
+// --- Componentes de UI ---
 const IconRefresh = ({ size = 16 }) => ( <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg> );
 const Navbar = ({ activeView, setActiveView, onRefresh, lastUpdated }) => ( <nav className="navbar" role="navigation" aria-label="Navegación principal"><div className="nav-left"><button onClick={() => setActiveView('standings')} className={activeView === 'standings' ? 'active' : ''}>Posiciones</button><button onClick={() => setActiveView('scorers')} className={activeView === 'scorers' ? 'active' : ''}>Goleadores</button><button onClick={() => setActiveView('news')} className={activeView === 'news' ? 'active' : ''}>Noticias</button><button onClick={() => setActiveView('bracket')} className={activeView === 'bracket' ? 'active' : ''}>Llaves</button></div><div className="nav-right"><button onClick={onRefresh} title="Refrescar datos" aria-label="Refrescar"> <IconRefresh /> </button><div className="last-updated" aria-live="polite">{lastUpdated ? `Actualizado: ${lastUpdated}` : ''}</div></div></nav> );
 const LoadingSpinner = ({ text = 'Cargando datos...' }) => ( <div className="spinner-container"> <div className="spinner" aria-hidden></div> <p>{text}</p> </div> );
@@ -117,16 +121,7 @@ export default function App() {
   const [analysisLoading, setAnalysisLoading] = useState(false);
   const analysisControllerRef = useRef(null);
 
-  // USAMOS la imagen importada desde JS para asegurar la ruta correcta en producción
-  useEffect(() => {
-    // establece una variable CSS con la URL resuelta por webpack
-    if (stadiumImage) {
-      document.documentElement.style.setProperty('--stadium-url', `url(${stadiumImage})`);
-    }
-    return () => {
-      document.documentElement.style.removeProperty('--stadium-url');
-    };
-  }, []);
+  // Nota: ya no aplicamos backgroundImage desde JS; lo controlamos con CSS (index.css)
 
   const loadAll = useCallback(async (force = false) => {
     setLoading(true);
