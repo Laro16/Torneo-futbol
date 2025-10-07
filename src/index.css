@@ -1,84 +1,82 @@
 /* --- Variables y Estilos Globales --- */
 :root {
-  --bg-dark: #0f172a;
-  --bg-medium: #1e293b;
-  --bg-light: #334155;
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --accent-blue: #38bdf8;
-  --pos-positive: #22c55e;
-  --pos-negative: #ef4444;
-  --shadow-color: rgba(0, 0, 0, 0.6);
-  --glow-color: rgba(56, 189, 248, 0.25);
-  --particle-color: rgba(255, 255, 255, 0.1);
+  --bg-dark: #0f172a;
+  --bg-medium: #1e293b;
+  --bg-light: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --accent-blue: #38bdf8;
+  --pos-positive: #22c55e;
+  --pos-negative: #ef4444;
+  --shadow-color: rgba(0, 0, 0, 0.6);
+  --glow-color: rgba(56, 189, 248, 0.25);
+  --particle-color: rgba(255, 255, 255, 0.1);
 }
 
 * {
-  box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: var(--bg-dark); /* Color de respaldo */
-  color: var(--text-primary);
-  overflow-x: hidden;
-  position: relative;
-  /* El fondo se aplica desde App.js, pero definimos las propiedades base aquí */
-  background-size: cover;
-  background-position: center center;
-  background-attachment: fixed;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-dark); /* Color de respaldo */
+  color: var(--text-primary);
+  overflow-x: hidden;
+  position: relative;
+  /* El fondo se aplica desde App.js, pero definimos las propiedades base aquí */
+  background-size: cover;
+  background-position: center center;
+  background-attachment: fixed;
 }
 
 /* --- Capa de Aurora y Partículas --- */
 body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: 
-        /* Capas de Aurora (luces de colores) */
-        radial-gradient(circle at 15% 25%, rgba(56, 189, 248, 0.15), transparent 40%),
-        radial-gradient(circle at 75% 85%, rgba(139, 92, 246, 0.15), transparent 40%),
-        radial-gradient(circle at 45% 10%, rgba(34, 197, 94, 0.1), transparent 40%),
-        /* Capa oscura para dar profundidad sobre la imagen */
-        linear-gradient(145deg, rgba(15, 23, 42, 0.4), rgba(13, 18, 28, 0.8));
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: 
+        /* Capas de Aurora (luces de colores) */
+        radial-gradient(circle at 15% 25%, rgba(56, 189, 248, 0.15), transparent 40%),
+        radial-gradient(circle at 75% 85%, rgba(139, 92, 246, 0.15), transparent 40%),
+        radial-gradient(circle at 45% 10%, rgba(34, 197, 94, 0.1), transparent 40%);
 
-    background-size: 200% 200%;
-    background-position: 0% 0%;
-    animation: moveAurora 30s ease-in-out infinite alternate;
-    z-index: -1; /* Se pone entre el fondo y el contenido */
+    background-size: 200% 200%;
+    background-position: 0% 0%;
+    animation: moveAurora 30s ease-in-out infinite alternate;
+    z-index: -1; /* Se pone entre el fondo y el contenido */
 }
 
 @keyframes moveAurora {
-  from { background-position: 0% 0%; }
-  to { background-position: 100% 100%; }
+  from { background-position: 0% 0%; }
+  to { background-position: 100% 100%; }
 }
 
-body::after { 
-    content: ''; 
-    position: fixed; 
-    width: 10px; height: 10px; 
-    background-color: rgba(255, 255, 255, 0.08); 
-    border-radius: 50%; 
-    top: 20%; right: 20%; 
-    animation: floatParticle 18s infinite ease-in-out alternate; 
-    z-index: -1; 
-    filter: blur(1px); 
+body::after { 
+    content: ''; 
+    position: fixed; 
+    width: 10px; height: 10px; 
+    background-color: rgba(255, 255, 255, 0.08); 
+    border-radius: 50%; 
+    top: 20%; right: 20%; 
+    animation: floatParticle 18s infinite ease-in-out alternate; 
+    z-index: -1; 
+    filter: blur(1px); 
 }
 
-@keyframes floatParticle { 
-    0% { transform: translate(0, 0) scale(0.8); opacity: 0; } 
-    25% { opacity: 0.5; } 
-    50% { transform: translate(50px, -50px) scale(1.1); opacity: 0.8; } 
-    75% { opacity: 0.5; } 
-    100% { transform: translate(100px, 0) scale(0.8); opacity: 0; } 
+@keyframes floatParticle { 
+    0% { transform: translate(0, 0) scale(0.8); opacity: 0; } 
+    25% { opacity: 0.5; } 
+    50% { transform: translate(50px, -50px) scale(1.1); opacity: 0.8; } 
+    75% { opacity: 0.5; } 
+    100% { transform: translate(100px, 0) scale(0.8); opacity: 0; } 
 }
 
 /* --- Contenedor Principal --- */
@@ -116,7 +114,8 @@ th, td { padding: 14px 18px; text-align: center; border-bottom: 1px solid rgba(5
 th { background-color: rgba(51, 65, 85, 0.8); }
 tr:last-child td { border-bottom: none; }
 tr { transition: background-color 0.2s ease-in-out; }
-tr[style*="cursor: pointer"]:hover { background-color: rgba(43, 58, 74, 0.9); }
+tr.clickable-row { cursor: pointer; }
+tr.clickable-row:hover { background-color: rgba(43, 58, 74, 0.9); }
 .col-rank { font-weight: 700; }
 .col-team { text-align: left; }
 .col-pts { font-weight: 700; color: var(--accent-blue); }
@@ -177,31 +176,19 @@ tr[style*="cursor: pointer"]:hover { background-color: rgba(43, 58, 74, 0.9); }
 
 /* --- Media Queries para Móviles --- */
 @media (max-width: 768px) {
-    body { font-size: 14px; }
-    .container { padding: 0.5rem; margin: 1rem auto; }
-    .main-title { font-size: 2rem; }
-    .navbar { flex-direction: column; gap: 8px; padding: 8px; top: 8px; }
-    .controls-row { flex-direction: column; gap: 1rem; align-items: stretch; }
-    .search-box, .sort-box { justify-content: space-between; }
-    .search-box input { width: 100%; }
-    th, td { padding: 10px 8px; font-size: 0.85rem; }
-    .modal-content { padding: 1.5rem; }
-    .stats-grid { grid-template-columns: 1fr; }
-    .bracket-section-background { padding: 1rem 0.5rem; }
-    .bracket-container-champions { gap: 30px; }
-    .round-champions { min-width: 160px; }
-    .round-champions:not(:last-child)::after { right: -14px; }
-    .standings-body .rank-1 ~ .col-team::before { font-size: 1em; }
+    body { font-size: 14px; }
+    .container { padding: 0.5rem; margin: 1rem auto; }
+    .main-title { font-size: 2rem; }
+    .navbar { flex-direction: column; gap: 8px; padding: 8px; top: 8px; }
+    .controls-row { flex-direction: column; gap: 1rem; align-items: stretch; }
+    .search-box, .sort-box { justify-content: space-between; }
+    .search-box input { width: 100%; }
+    th, td { padding: 10px 8px; font-size: 0.85rem; }
+    .modal-content { padding: 1.5rem; }
+    .stats-grid { grid-template-columns: 1fr; }
+    .bracket-section-background { padding: 1rem 0.5rem; }
+    .bracket-container-champions { gap: 30px; }
+    .round-champions { min-width: 160px; }
+    .round-champions:not(:last-child)::after { right: -14px; }
+    .standings-body .rank-1 ~ .col-team::before { font-size: 1em; }
 }
-```
-
-### Plan de Acción Final
-
-1.  Asegúrate de que la imagen esté en **`src/images/stadium.jpg`**.
-2.  **Reemplaza por completo** el contenido de tus archivos `App.js` y `index.css` con los códigos que te acabo de dar.
-3.  Guarda todo y sube los cambios a GitHub.
-
-```bash
-git add .
-git commit -m "Solución definitiva de fondo con JS import"
-git push
