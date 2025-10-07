@@ -1,12 +1,10 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import './index.css';
-import stadiumImage from './images/stadium.jpg'; // Importa la imagen desde la carpeta src
 
-/*
-  Proyecto: Liga Local (Versión Final Definitiva)
-  - La imagen de fondo se importa y se aplica directamente desde JavaScript
-    para garantizar que Vercel la encuentre durante el build.
-*/
+// /*
+//   Proyecto: Liga Local (Versión Final Definitiva)
+//   - La imagen de fondo se aplica desde CSS (index.css) mediante body::before
+// */
 
 // --- DATOS INICIALES Y URLs ---
 const initialStandingsData = [{ equipo: 'LA-PLEBE', jj: 6, pg: 6, pe: 0, pp: 0, gf: 24, gc: 7, pts: 18 }];
@@ -19,80 +17,80 @@ const BRACKET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfPgrAnVvc
 
 // --- Helpers ---
 const safeNumber = (v) => {
-  if (v === null || v === undefined || v === '') return null;
-  const n = Number(String(v).replace(/[^0-9.-]/g, ''));
-  return Number.isNaN(n) ? v : n;
+  if (v === null || v === undefined || v === '') return null;
+  const n = Number(String(v).replace(/[^0-9.-]/g, ''));
+  return Number.isNaN(n) ? v : n;
 };
 const normalizeHeader = (h) => String(h || '').trim().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_\-]/g, '').toLowerCase();
 const NUMERIC_HEADERS = ['jj', 'pg', 'pe', 'pp', 'gf', 'gc', 'pts', 'goles', 'equipo1_marcador', 'equipo2_marcador', 'id', 'ronda_number'];
 const parseCSV = (csvText) => {
-  if (!csvText) return [];
-  csvText = csvText.replace(/^\uFEFF/, '');
-  const lines = csvText.split(/\r\n|\n/).filter(l => l.trim() !== '');
-  if (lines.length < 2) return [];
-  const headers = splitCSVLine(lines[0]).map(normalizeHeader);
-  const data = [];
-  for (let i = 1; i < lines.length; i++) {
-    const row = splitCSVLine(lines[i]);
-    if (row.length !== headers.length) continue;
-    const entry = {};
-    headers.forEach((h, idx) => {
-      const val = row[idx] === undefined ? '' : row[idx].trim();
-      if (NUMERIC_HEADERS.includes(h)) {
-        entry[h] = safeNumber(val);
-      } else {
-        entry[h] = val;
-      }
-    });
-    data.push(entry);
-  }
-  return data;
+  if (!csvText) return [];
+  csvText = csvText.replace(/^\uFEFF/, '');
+  const lines = csvText.split(/\r\n|\n/).filter(l => l.trim() !== '');
+  if (lines.length < 2) return [];
+  const headers = splitCSVLine(lines[0]).map(normalizeHeader);
+  const data = [];
+  for (let i = 1; i < lines.length; i++) {
+    const row = splitCSVLine(lines[i]);
+    if (row.length !== headers.length) continue;
+    const entry = {};
+    headers.forEach((h, idx) => {
+      const val = row[idx] === undefined ? '' : row[idx].trim();
+      if (NUMERIC_HEADERS.includes(h)) {
+        entry[h] = safeNumber(val);
+      } else {
+        entry[h] = val;
+      }
+    });
+    data.push(entry);
+  }
+  return data;
 };
 function splitCSVLine(line) {
-  const result = [];
-  let cur = '';
-  let inQuotes = false;
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (ch === '"') {
-      if (inQuotes && line[i + 1] === '"') { cur += '"'; i++; } else { inQuotes = !inQuotes; }
-      continue;
-    }
-    if (ch === ',' && !inQuotes) { result.push(cur); cur = ''; continue; }
-    cur += ch;
-  }
-  result.push(cur);
-  return result;
+  const result = [];
+  let cur = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && line[i + 1] === '"') { cur += '"'; i++; } else { inQuotes = !inQuotes; }
+      continue;
+    }
+    if (ch === ',' && !inQuotes) { result.push(cur); cur = ''; continue; }
+    cur += ch;
+  }
+  result.push(cur);
+  return result;
 }
 const fetchWithTimeout = async (url, timeout = 10_000) => {
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
-  try {
-    const res = await fetch(url, { signal: controller.signal, cache: "no-store" });
-    clearTimeout(id);
-    return res;
-  } catch (e) { clearTimeout(id); throw e; }
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  try {
+    const res = await fetch(url, { signal: controller.signal, cache: "no-store" });
+    clearTimeout(id);
+    return res;
+  } catch (e) { clearTimeout(id); throw e; }
 };
 const CACHE_PREFIX = 'liga_local_cache_v3_';
 const cacheGet = (key, maxAgeMs = 1000 * 60 * 5) => {
-  try {
-    const raw = localStorage.getItem(CACHE_PREFIX + key); if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (Date.now() - parsed.ts > maxAgeMs) { localStorage.removeItem(CACHE_PREFIX + key); return null; }
-    return parsed.data;
-  } catch (e) { return null; }
+  try {
+    const raw = localStorage.getItem(CACHE_PREFIX + key); if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (Date.now() - parsed.ts > maxAgeMs) { localStorage.removeItem(CACHE_PREFIX + key); return null; }
+    return parsed.data;
+  } catch (e) { return null; }
 };
 const cacheSet = (key, data) => { try { localStorage.setItem(CACHE_PREFIX + key, JSON.stringify({ ts: Date.now(), data })); } catch (e) { } };
 const cacheClear = (key) => { localStorage.removeItem(CACHE_PREFIX + key); };
 const callGeminiAPI = async (prompt, signal) => {
-  const apiKey = process.env.REACT_APP_GEMINI_API_KEY;
-  if (!apiKey) throw new Error('API key for Gemini not configured. Set REACT_APP_GEMINI_API_KEY');
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
-  const payload = { contents: [{ parts: [{ text: prompt }] }] };
-  const res = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal, });
-  if (!res.ok) { const body = await res.text(); throw new Error(`Gemini API error: ${res.status} - ${body}`); }
-  const data = await res.json();
-  return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
+  const apiKey = process.env.REACT_APP_GEMINI_API_KEY;
+  if (!apiKey) throw new Error('API key for Gemini not configured. Set REACT_APP_GEMINI_API_KEY');
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+  const payload = { contents: [{ parts: [{ text: prompt }] }] };
+  const res = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal, });
+  if (!res.ok) { const body = await res.text(); throw new Error(`Gemini API error: ${res.status} - ${body}`); }
+  const data = await res.json();
+  return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
 };
 
 // --- Componentes de UI ---
@@ -107,110 +105,100 @@ const BracketView = ({ data }) => { if (!data || data.length === 0) { return <di
 
 // --- Componente Principal ---
 export default function App() {
-  const [standingsData, setStandingsData] = useState([]);
-  const [scorersData, setScorersData] = useState([]);
-  const [newsData, setNewsData] = useState([]);
-  const [bracketData, setBracketData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [activeView, setActiveView] = useState('standings');
-  const [lastUpdated, setLastUpdated] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState('pts');
-  const [sortDir, setSortDir] = useState('desc');
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedTeam, setSelectedTeam] = useState(null);
-  const [teamAnalysis, setTeamAnalysis] = useState('');
-  const [analysisLoading, setAnalysisLoading] = useState(false);
-  const analysisControllerRef = useRef(null);
+  const [standingsData, setStandingsData] = useState([]);
+  const [scorersData, setScorersData] = useState([]);
+  const [newsData, setNewsData] = useState([]);
+  const [bracketData, setBracketData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeView, setActiveView] = useState('standings');
+  const [lastUpdated, setLastUpdated] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('pts');
+  const [sortDir, setSortDir] = useState('desc');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedTeam, setSelectedTeam] = useState(null);
+  const [teamAnalysis, setTeamAnalysis] = useState('');
+  const [analysisLoading, setAnalysisLoading] = useState(false);
+  const analysisControllerRef = useRef(null);
 
-  useEffect(() => {
-    // AHORA APLICAMOS UN DEGRADADO OSCURO ENCIMA DE LA IMAGEN
-    document.body.style.backgroundImage = `linear-gradient(145deg, rgba(15, 23, 42, 0.4), rgba(13, 18, 28, 0.8)), url(${stadiumImage})`;
-    document.body.style.backgroundSize = 'cover';
-    document.body.style.backgroundPosition = 'center center';
-    document.body.style.backgroundAttachment = 'fixed';
-  
-    return () => {
-      document.body.style.backgroundImage = '';
-    };
-  }, []);
+  // Nota: ya no aplicamos backgroundImage desde JS; lo controlamos con CSS (index.css)
 
-  const loadAll = useCallback(async (force = false) => {
-    setLoading(true);
-    const loadDataset = async (url, fallback, cacheKey) => {
-      if (!force) {
-        const cached = cacheGet(cacheKey);
-        if (cached) return cached;
-      }
-      try {
-        const res = await fetchWithTimeout(url);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const text = await res.text();
-        const parsed = parseCSV(text);
-        if (parsed && parsed.length > 0) {
-          cacheSet(cacheKey, parsed);
-          return parsed;
-        }
-        return fallback;
-      } catch (e) {
-        console.warn('fetch failed for', url, e);
-        if (force) cacheClear(cacheKey);
-        return fallback;
-      }
-    };
-    if (force) { ['standings', 'scorers', 'news', 'bracket'].forEach(cacheClear); }
-    const [s, sc, n, b] = await Promise.all([
-      loadDataset(STANDINGS_URL, initialStandingsData, 'standings'),
-      loadDataset(SCORERS_URL, initialScorersData, 'scorers'),
-      loadDataset(NEWS_URL, initialNewsData, 'news'),
-      loadDataset(BRACKET_URL, [], 'bracket'),
-    ]);
-    setStandingsData(s); setScorersData(sc); setNewsData(n); setBracketData(b);
-    setLastUpdated(new Date().toLocaleString('es-GT', { hour: '2-digit', minute: '2-digit', hour12: true }));
-    setLoading(false);
-  }, []);
+  const loadAll = useCallback(async (force = false) => {
+    setLoading(true);
+    const loadDataset = async (url, fallback, cacheKey) => {
+      if (!force) {
+        const cached = cacheGet(cacheKey);
+        if (cached) return cached;
+      }
+      try {
+        const res = await fetchWithTimeout(url);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const text = await res.text();
+        const parsed = parseCSV(text);
+        if (parsed && parsed.length > 0) {
+          cacheSet(cacheKey, parsed);
+          return parsed;
+        }
+        return fallback;
+      } catch (e) {
+        console.warn('fetch failed for', url, e);
+        if (force) cacheClear(cacheKey);
+        return fallback;
+      }
+    };
+    if (force) { ['standings', 'scorers', 'news', 'bracket'].forEach(cacheClear); }
+    const [s, sc, n, b] = await Promise.all([
+      loadDataset(STANDINGS_URL, initialStandingsData, 'standings'),
+      loadDataset(SCORERS_URL, initialScorersData, 'scorers'),
+      loadDataset(NEWS_URL, initialNewsData, 'news'),
+      loadDataset(BRACKET_URL, [], 'bracket'),
+    ]);
+    setStandingsData(s); setScorersData(sc); setNewsData(n); setBracketData(b);
+    setLastUpdated(new Date().toLocaleString('es-GT', { hour: '2-digit', minute: '2-digit', hour12: true }));
+    setLoading(false);
+  }, []);
 
-  useEffect(() => {
-    loadAll(false);
-    const id = setInterval(() => loadAll(false), 10 * 60 * 1000);
-    return () => clearInterval(id);
-  }, [loadAll]);
+  useEffect(() => {
+    loadAll(false);
+    const id = setInterval(() => loadAll(false), 10 * 60 * 1000);
+    return () => clearInterval(id);
+  }, [loadAll]);
 
-  const handleRefresh = () => loadAll(true);
-  const handleSetView = (view) => { setSearchQuery(''); setActiveView(view); };
-  const handleTeamClick = async (team) => {
-    setSelectedTeam(team); setModalOpen(true); setAnalysisLoading(true); setTeamAnalysis('');
-    if (analysisControllerRef.current) analysisControllerRef.current.abort();
-    const controller = new AbortController(); analysisControllerRef.current = controller;
-    const prompt = `Eres un analista de fútbol experto y carismático de Guatemala. Proporciona un análisis breve (2-3 frases) sobre el rendimiento del equipo '${team.equipo}'. Sus estadísticas son: ${team.jj} partidos jugados, ${team.pg} victorias, ${team.pe} empates, ${team.pp} derrotas, ${team.gf} goles a favor, y ${team.gc} goles en contra. Destaca sus fortalezas y debilidades de forma sencilla y directa, con un tono emocionante y local.`;
-    try {
-      const text = await callGeminiAPI(prompt, controller.signal);
-      setTeamAnalysis(text || 'No se obtuvo resultado del servicio de IA.');
-    } catch (e) {
-      console.error(e); if (e.name === 'AbortError') return;
-      setTeamAnalysis(String(e.message).includes('API key') ? 'La clave de API de Gemini no está configurada.' : 'Error al generar análisis. Intenta de nuevo.');
-    } finally { setAnalysisLoading(false); analysisControllerRef.current = null; }
-  };
-  const handleRegenerateAnalysis = () => { if (selectedTeam) handleTeamClick(selectedTeam); };
+  const handleRefresh = () => loadAll(true);
+  const handleSetView = (view) => { setSearchQuery(''); setActiveView(view); };
+  const handleTeamClick = async (team) => {
+    setSelectedTeam(team); setModalOpen(true); setAnalysisLoading(true); setTeamAnalysis('');
+    if (analysisControllerRef.current) analysisControllerRef.current.abort();
+    const controller = new AbortController(); analysisControllerRef.current = controller;
+    const prompt = `Eres un analista de fútbol experto y carismático de Guatemala. Proporciona un análisis breve (2-3 frases) sobre el rendimiento del equipo '${team.equipo}'. Sus estadísticas son: ${team.jj} partidos jugados, ${team.pg} victorias, ${team.pe} empates, ${team.pp} derrotas, ${team.gf} goles a favor, y ${team.gc} goles en contra. Destaca sus fortalezas y debilidades de forma sencilla y directa, con un tono emocionante y local.`;
+    try {
+      const text = await callGeminiAPI(prompt, controller.signal);
+      setTeamAnalysis(text || 'No se obtuvo resultado del servicio de IA.');
+    } catch (e) {
+      console.error(e); if (e.name === 'AbortError') return;
+      setTeamAnalysis(String(e.message).includes('API key') ? 'La clave de API de Gemini no está configurada.' : 'Error al generar análisis. Intenta de nuevo.');
+    } finally { setAnalysisLoading(false); analysisControllerRef.current = null; }
+  };
+  const handleRegenerateAnalysis = () => { if (selectedTeam) handleTeamClick(selectedTeam); };
 
-  const renderContent = () => {
-    if (loading) return <LoadingSpinner />;
-    switch (activeView) {
-      case 'standings': return (<><div className="controls-row"><div className="search-box"><input placeholder="Buscar equipo..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} aria-label="Buscar equipo" /></div><div className="sort-box"><label htmlFor="sort-select">Orden:</label><select id="sort-select" value={sortBy} onChange={e => setSortBy(e.target.value)}><option value="pts">Puntos</option><option value="gd">Diferencia</option><option value="gf">Goles a favor</option><option value="name">Nombre</option></select><button onClick={() => setSortDir(d => d === 'asc' ? 'desc' : 'asc')} className="small">{sortDir === 'asc' ? 'Asc' : 'Desc'}</button></div></div><StandingsTable data={standingsData} onTeamClick={handleTeamClick} search={searchQuery} sortBy={sortBy} sortDir={sortDir} /></>);
-      case 'scorers': return (<><div className="controls-row"><div className="search-box"><input placeholder="Buscar jugador o equipo..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} aria-label="Buscar goleador" /></div></div><ScorersTable data={scorersData} search={searchQuery} /></>);
-      case 'news': return <NewsSection data={newsData} />;
-      case 'bracket': return <BracketView data={bracketData} />;
-      default: return <StandingsTable data={standingsData} onTeamClick={handleTeamClick} search={searchQuery} sortBy={sortBy} sortDir={sortDir} />;
-    }
-  };
+  const renderContent = () => {
+    if (loading) return <LoadingSpinner />;
+    switch (activeView) {
+      case 'standings': return (<><div className="controls-row"><div className="search-box"><input placeholder="Buscar equipo..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} aria-label="Buscar equipo" /></div><div className="sort-box"><label htmlFor="sort-select">Orden:</label><select id="sort-select" value={sortBy} onChange={e => setSortBy(e.target.value)}><option value="pts">Puntos</option><option value="gd">Diferencia</option><option value="gf">Goles a favor</option><option value="name">Nombre</option></select><button onClick={() => setSortDir(d => d === 'asc' ? 'desc' : 'asc')} className="small">{sortDir === 'asc' ? 'Asc' : 'Desc'}</button></div></div><StandingsTable data={standingsData} onTeamClick={handleTeamClick} search={searchQuery} sortBy={sortBy} sortDir={sortDir} /></>);
+      case 'scorers': return (<><div className="controls-row"><div className="search-box"><input placeholder="Buscar jugador o equipo..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} aria-label="Buscar goleador" /></div></div><ScorersTable data={scorersData} search={searchQuery} /></>);
+      case 'news': return <NewsSection data={newsData} />;
+      case 'bracket': return <BracketView data={bracketData} />;
+      default: return <StandingsTable data={standingsData} onTeamClick={handleTeamClick} search={searchQuery} sortBy={sortBy} sortDir={sortDir} />;
+    }
+  };
 
-  return (
-    <div className="container">
-      <h1 className="main-title">Torneo "La Gloria del Barrio"</h1>
-      <Navbar activeView={activeView} setActiveView={handleSetView} onRefresh={handleRefresh} lastUpdated={lastUpdated} />
-      {renderContent()}
-      {modalOpen && <GeminiAnalysisModal team={selectedTeam} analysis={teamAnalysis} isLoading={analysisLoading} onClose={() => setModalOpen(false)} onRegenerate={handleRegenerateAnalysis} />}
-      <footer className="app-footer"><small>Hecho en Guate 🇬🇹 — Datos: Google Sheets • UI Mejorada</small></footer>
-    </div>
-  );
+  return (
+    <div className="container">
+      <h1 className="main-title">Torneo "La Gloria del Barrio"</h1>
+      <Navbar activeView={activeView} setActiveView={handleSetView} onRefresh={handleRefresh} lastUpdated={lastUpdated} />
+      {renderContent()}
+      {modalOpen && <GeminiAnalysisModal team={selectedTeam} analysis={teamAnalysis} isLoading={analysisLoading} onClose={() => setModalOpen(false)} onRegenerate={handleRegenerateAnalysis} />}
+      <footer className="app-footer"><small>Hecho en Guate 🇬🇹 — Datos: Google Sheets • UI Mejorada</small></footer>
+    </div>
+  );
 }
