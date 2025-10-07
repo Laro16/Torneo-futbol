@@ -24,13 +24,17 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--bg-dark);
+  background-color: var(--bg-dark); /* Color de respaldo */
   color: var(--text-primary);
   overflow-x: hidden;
   position: relative;
+  /* El fondo se aplica desde App.js, pero definimos las propiedades base aquí */
+  background-size: cover;
+  background-position: center center;
+  background-attachment: fixed;
 }
 
-/* --- Fondo de "Aurora Boreal" y Estadio Dinámico --- */
+/* --- Capa de Aurora y Partículas --- */
 body::before {
     content: '';
     position: fixed;
@@ -43,34 +47,39 @@ body::before {
         radial-gradient(circle at 15% 25%, rgba(56, 189, 248, 0.15), transparent 40%),
         radial-gradient(circle at 75% 85%, rgba(139, 92, 246, 0.15), transparent 40%),
         radial-gradient(circle at 45% 10%, rgba(34, 197, 94, 0.1), transparent 40%),
-        
-        /* CORRECCIÓN: Se quitan las comillas de la URL local */
-        url(/images/stadium.jpg),
-        
-        /* Capa de color base por si la imagen falla */
-        linear-gradient(145deg, var(--bg-dark), #0d121c);
+        /* Capa oscura para dar profundidad sobre la imagen */
+        linear-gradient(145deg, rgba(15, 23, 42, 0.4), rgba(13, 18, 28, 0.8));
 
-    background-size: 200% 200%, 200% 200%, 200% 200%, cover, auto;
-    background-position: 0% 0%, 0% 0%, 0% 0%, center center, 0% 0%;
-    background-attachment: fixed, fixed, fixed, fixed, fixed;
-
+    background-size: 200% 200%;
+    background-position: 0% 0%;
     animation: moveAurora 30s ease-in-out infinite alternate;
-    z-index: -2;
-    filter: brightness(0.8);
+    z-index: -1; /* Se pone entre el fondo y el contenido */
 }
 
 @keyframes moveAurora {
-  from { background-position: 0% 0%, 0% 0%, 0% 0%, center center, 0% 0%; }
-  to { background-position: 100% 100%, 100% 100%, 100% 100%, center center, 0% 0%; }
+  from { background-position: 0% 0%; }
+  to { background-position: 100% 100%; }
 }
 
-/* --- Partículas Flotantes (Adorno) --- */
-.container::before, .container::after { content: ''; position: absolute; background-color: var(--particle-color); border-radius: 50%; opacity: 0; z-index: -1; filter: blur(2px); }
-.container::before { width: 15px; height: 15px; top: 10%; left: 5%; animation: floatParticle 15s infinite ease-in-out; }
-.container::after { width: 20px; height: 20px; bottom: 5%; right: 10%; animation: floatParticle 20s infinite ease-in-out reverse; }
-body::after { content: ''; position: fixed; width: 10px; height: 10px; background-color: rgba(255, 255, 255, 0.08); border-radius: 50%; top: 20%; right: 20%; animation: floatParticle 18s infinite ease-in-out alternate; z-index: -1; filter: blur(1px); }
-body::before { content: ''; position: fixed; width: 12px; height: 12px; background-color: rgba(255, 255, 255, 0.06); border-radius: 50%; bottom: 15%; left: 25%; animation: floatParticle 22s infinite ease-in-out; z-index: -1; filter: blur(1.5px); }
-@keyframes floatParticle { 0% { transform: translate(0, 0) scale(0.8); opacity: 0; } 25% { opacity: 0.5; } 50% { transform: translate(50px, -50px) scale(1.1); opacity: 0.8; } 75% { opacity: 0.5; } 100% { transform: translate(100px, 0) scale(0.8); opacity: 0; } }
+body::after { 
+    content: ''; 
+    position: fixed; 
+    width: 10px; height: 10px; 
+    background-color: rgba(255, 255, 255, 0.08); 
+    border-radius: 50%; 
+    top: 20%; right: 20%; 
+    animation: floatParticle 18s infinite ease-in-out alternate; 
+    z-index: -1; 
+    filter: blur(1px); 
+}
+
+@keyframes floatParticle { 
+    0% { transform: translate(0, 0) scale(0.8); opacity: 0; } 
+    25% { opacity: 0.5; } 
+    50% { transform: translate(50px, -50px) scale(1.1); opacity: 0.8; } 
+    75% { opacity: 0.5; } 
+    100% { transform: translate(100px, 0) scale(0.8); opacity: 0; } 
+}
 
 /* --- Contenedor Principal --- */
 .container { max-width: 950px; margin: 2rem auto; padding: 1rem; position: relative; z-index: 1; }
@@ -183,5 +192,4 @@ tr[style*="cursor: pointer"]:hover { background-color: rgba(43, 58, 74, 0.9); }
     .round-champions { min-width: 160px; }
     .round-champions:not(:last-child)::after { right: -14px; }
     .standings-body .rank-1 ~ .col-team::before { font-size: 1em; }
-    .container::before, .container::after, body::after { display: none; }
 }
