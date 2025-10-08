@@ -111,6 +111,45 @@ const GeminiAnalysisModal = ({ team, analysis, isLoading, onClose, onRegenerate 
 const StandingsTable = ({ data, onTeamClick, search, sortBy, sortDir }) => { if (!data || data.length === 0) return <p style={{ textAlign: 'center' }}>No hay datos de posiciones disponibles.</p>; const filtered = search ? data.filter(d => d.equipo && d.equipo.toLowerCase().includes(search.trim().toLowerCase())) : data; const sorted = [...filtered].sort((a, b) => { if (sortBy === 'pts') return (b.pts || 0) - (a.pts || 0) || ((b.gf || 0) - (b.gc || 0)) - ((a.gf || 0) - (a.gc || 0)); if (sortBy === 'gf') return (b.gf || 0) - (a.gf || 0); if (sortBy === 'gd') return ((b.gf || 0) - (b.gc || 0)) - ((a.gf || 0) - (a.gc || 0)); const nameA = (a.equipo || '').toLowerCase(); const nameB = (b.equipo || '').toLowerCase(); return sortDir === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA); }); return ( <div className="table-wrap"><table><thead><tr><th className="col-rank">#</th><th className="col-team">Equipo</th><th>JJ</th><th>PG</th><th>PE</th><th>PP</th><th>GF</th><th>GC</th><th>+/-</th><th className="col-pts">PTS</th></tr></thead><tbody className="standings-body">{sorted.map((team, idx) => { const gd = (team.gf || 0) - (team.gc || 0); return ( <tr key={`${team.equipo}-${idx}`} onClick={() => onTeamClick(team)} className="clickable-row" title={`Click para ver análisis de ${team.equipo}`}><td className={`col-rank rank-${idx + 1}`}>{idx + 1}</td><td className="col-team">{team.equipo || '[Dato no disponible]'}</td><td>{team.jj ?? '-'}</td><td>{team.pg ?? '-'}</td><td>{team.pe ?? '-'}</td><td>{team.pp ?? '-'}</td><td>{team.gf ?? '-'}</td><td>{team.gc ?? '-'}</td><td className={gd >= 0 ? 'pos-positive' : 'pos-negative'}>{gd > 0 ? `+${gd}` : gd}</td><td className="col-pts">{team.pts ?? '-'}</td></tr> ); })}</tbody></table></div> ); };
 const ScorersTable = ({ data, search }) => { if (!data || data.length === 0) return <p style={{ textAlign: 'center' }}>No hay datos de goleadores disponibles.</p>; const filtered = search ? data.filter(p => (p.jugador || '').toLowerCase().includes(search.toLowerCase()) || (p.equipo || '').toLowerCase().includes(search.toLowerCase())) : data; const sorted = [...filtered].sort((a, b) => (b.goles || 0) - (a.goles || 0)); return ( <div className="table-wrap"><table><thead><tr><th className="col-rank">#</th><th className="col-team">Jugador</th><th>Equipo</th><th className="col-pts">Goles</th></tr></thead><tbody>{sorted.map((p, idx) => ( <tr key={`${p.jugador}-${idx}`}><td className={`col-rank rank-${idx + 1}`}>{idx + 1}</td><td className="col-team">{p.jugador || '[Dato no disponible]'}</td><td>{p.equipo || '[Dato no disponible]'}</td><td className="col-pts">{p.goles ?? 0}</td></tr> ))}</tbody></table></div> ); };
 
+const NewsSection = ({ data }) => {
+  if (!data || data.length === 0) {
+    return (
+      <div className="news-container" style={{ textAlign: 'center', padding: 40 }}>
+        <p>NO HAY NOTICIAS NUEVAS, VUELVE MÁS TARDE</p>
+      </div>
+    );
+  }
+
+  const parseDate = (s) => {
+    if (!s) return 0;
+    const str = String(s).trim();
+    // try dd/mm/yyyy
+    if (str.includes('/')) {
+      const parts = str.split('/');
+      if (parts.length === 3) {
+        const d = new Date(Number(parts[2]), Number(parts[1]) - 1, Number(parts[0]));
+        return isNaN(d.getTime()) ? 0 : d.getTime();
+      }
+    }
+    const d = new Date(str);
+    return isNaN(d.getTime()) ? 0 : d.getTime();
+  };
+
+  const sorted = [...data].sort((a, b) => (parseDate(b.fecha) || 0) - (parseDate(a.fecha) || 0));
+
+  return (
+    <div className="news-container">
+      {sorted.map((item, idx) => (
+        <article className="news-card" key={idx} aria-labelledby={`news-title-${idx}`}>
+          <h2 id={`news-title-${idx}`}>{item.titulo || '[Título no disponible]'}</h2>
+          <p className="news-date">{item.fecha}</p>
+          <div>{item.contenido}</div>
+        </article>
+      ))}
+    </div>
+  );
+};
+
 // --- BracketView: ahora más robusto ---
 const BracketView = ({ data }) => {
   if (!data || data.length === 0) {
