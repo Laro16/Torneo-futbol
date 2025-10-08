@@ -12,23 +12,12 @@
   --glow-color: rgba(56, 189, 248, 0.25);
   --particle-color: rgba(255, 255, 255, 0.1);
   --stadium-url: none; /* será sobrescrita por App.js */
-  --app-scale: 1; /* variable para escalar la app (JS o mediaqueries la ajustan) */
-}
-
-/* Fallback CSS: forzar escala 0.8 en pantallas <1024px, y 1 en >=1024px.
-   Esto asegura que si no usas JS, el comportamiento ya esté aplicado. */
-@media (max-width: 1023px) {
-  :root { --app-scale: 0.8; }
-}
-@media (min-width: 1024px) {
-  :root { --app-scale: 1; }
+  --app-scale: 1; /* variable para escalar la app (0.75 en móviles) */
 }
 
 /* Asegurar que html y body ocupen todo el viewport */
 html, body, #root {
   height: 100%;
-  margin: 0;
-  padding: 0;
 }
 
 * { box-sizing: border-box; }
@@ -91,17 +80,12 @@ body::after {
 .app-wrap {
   transform: scale(var(--app-scale));
   transform-origin: top center;
-  /* Ajustar ancho para evitar recorte horizontal cuando se escala */
+  /* Ajustar ancho para evitar recorte en algunos navegadores */
   width: calc(100% / var(--app-scale));
   transition: transform 220ms ease;
+  /* elevar sobre el fondo */
   position: relative;
   z-index: 3;
-
-  /* Suaviza render en WebKit/Blink */
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  -webkit-transform-style: preserve-3d;
-  transform-style: preserve-3d;
 }
 
 /* --- Contenedor Principal --- */
@@ -133,7 +117,7 @@ button.small.secondary:hover { background: rgba(30,41,59,0.5); border-color: rgb
 :focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 3px; border-radius: 6px; }
 
 /* --- Tablas (más transparentes) --- */
-.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 30px var(--shadow-color); background-color: rgba(30, 41, 59, 0.45); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border: 1px solid rgba(255, 255, 255, 0.06); }
 th, td { padding: 14px 18px; text-align: center; border-bottom: 1px solid rgba(51, 65, 85, 0.3); white-space: nowrap; color: var(--text-primary); }
 th { background-color: rgba(51, 65, 85, 0.35); }
@@ -208,4 +192,18 @@ tr.clickable-row:hover { background-color: rgba(43, 58, 74, 0.6); }
     .controls-row { flex-direction: column; gap: 1rem; align-items: stretch; }
     .search-box, .sort-box { justify-content: space-between; }
     .search-box input { width: 100%; }
-    th, td { padding: 10px 8px; font-size: 0.85rem;
+    th, td { padding: 10px 8px; font-size: 0.85rem; }
+    .modal-content { padding: 1.5rem; }
+    .stats-grid { grid-template-columns: 1fr; }
+    .bracket-section-background { padding: 1rem 0.5rem; }
+    .bracket-container-champions { gap: 30px; }
+    .round-champions { min-width: 160px; }
+    .round-champions:not(:last-child)::after { right: -14px; }
+    .standings-body .rank-1 ~ .col-team::before { font-size: 1em; }
+}
+
+/* Si quieres forzar siempre 75% en móviles puedes añadir por CSS (no usado porque lo hace JS):
+@media (max-width: 420px) {
+  :root { --app-scale: 0.75; }
+}
+*/
