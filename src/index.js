@@ -3,43 +3,30 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 
-/**
- * Política:
- * - Computadoras de escritorio (anchura >= 1024px) => escala 1 (sin zoom)
- * - Otros dispositivos (móviles/tablets, anchura < 1024px) => escala 0.8 (80%)
- *
- * Esto se aplica al cargar y al redimensionar.
- */
-
-function applyAppScale(scale) {
-  document.documentElement.style.setProperty('--app-scale', String(scale));
-}
-
-function isDesktopWidth() {
+// Detectamos tamaño inicial y aplicamos escala si es necesario
+function setInitialAppScale() {
   try {
-    return window.matchMedia && window.matchMedia('(min-width: 1024px)').matches;
+    const width = window.innerWidth || document.documentElement.clientWidth;
+    // Ajusta este umbral si prefieres otro punto de corte
+    if (width <= 420) {
+      document.documentElement.style.setProperty('--app-scale', '0.75');
+    } else {
+      document.documentElement.style.setProperty('--app-scale', '1');
+    }
   } catch (e) {
-    return false;
-  }
-}
-
-function setScaleByDevice() {
-  if (isDesktopWidth()) {
-    applyAppScale(1);
-  } else {
-    applyAppScale(0.8);
+    // si algo falla, no hacemos nada
   }
 }
 
 // Ejecutar al cargar
-setScaleByDevice();
+setInitialAppScale();
 
-// Re-evaluar al redimensionar (debounce simple)
+// Opcional: actualizar al redimensionar (debounced simple)
 let resizeTimeout = null;
 window.addEventListener('resize', () => {
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(() => {
-    setScaleByDevice();
+    setInitialAppScale();
   }, 150);
 });
 
