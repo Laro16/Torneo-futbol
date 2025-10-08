@@ -19,6 +19,7 @@ const safeNumber = (v) => {
 };
 const normalizeHeader = (h) => String(h || '').trim().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_\-]/g, '').toLowerCase();
 const NUMERIC_HEADERS = ['jj', 'pg', 'pe', 'pp', 'gf', 'gc', 'pts', 'goles', 'equipo1_marcador', 'equipo2_marcador', 'id', 'ronda_number'];
+
 const parseCSV = (csvText) => {
   if (!csvText) return [];
   csvText = csvText.replace(/^\uFEFF/, '');
@@ -28,16 +29,29 @@ const parseCSV = (csvText) => {
   const data = [];
   for (let i = 1; i < lines.length; i++) {
     const row = splitCSVLine(lines[i]);
-    if (row.length !== headers.length) continue;
+    // If row has fewer cells than headers, pad with empty strings; if more, keep extras joined at the end
+    if (row.length < headers.length) {
+      const padded = row.concat(new Array(headers.length - row.length).fill(''));
+      row.length = 0; row.push(...padded);
+    } else if (row.length > headers.length) {
+      // join the extra columns into the last column
+      const extras = row.slice(headers.length - 1).join(',');
+      row.splice(headers.length - 1, row.length - (headers.length - 1), extras);
+    }
     const entry = {};
     headers.forEach((h, idx) => {
-      const val = row[idx] === undefined ? '' : row[idx].trim();
+      const rawVal = row[idx] === undefined ? '' : row[idx].trim();
       if (NUMERIC_HEADERS.includes(h)) {
-        entry[h] = safeNumber(val);
+        entry[h] = safeNumber(rawVal);
       } else {
-        entry[h] = val;
+        entry[h] = rawVal;
       }
     });
+    // keep original raw ronda value (if exists) for mapping and also a normalized version
+    if (entry.ronda) {
+      entry.ronda_raw = entry.ronda;
+      entry.ronda = String(entry.ronda).trim();
+    }
     data.push(entry);
   }
   return data;
@@ -96,8 +110,95 @@ const LoadingSpinner = ({ text = 'Cargando datos...' }) => ( <div className="spi
 const GeminiAnalysisModal = ({ team, analysis, isLoading, onClose, onRegenerate }) => { if (!team) return null; return ( <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true"><div className="modal-content" onClick={(e) => e.stopPropagation()}><button className="close-button" onClick={onClose} aria-label="Cerrar">&times;</button><h2>Análisis de {team.equipo}</h2><div className="stats-grid"><div><strong>Puntos:</strong> {team.pts}</div><div><strong>Partidos:</strong> {team.jj}</div><div><strong>Victorias:</strong> {team.pg}</div><div><strong>Empates:</strong> {team.pe}</div><div><strong>Derrotas:</strong> {team.pp}</div><div><strong>Goles a Favor:</strong> {team.gf}</div><div><strong>Goles en Contra:</strong> {team.gc}</div><div><strong>Diferencia:</strong> {team.gf - team.gc > 0 ? `+${team.gf - team.gc}` : team.gf - team.gc}</div></div><div className="analysis-box"><h3>Análisis con IA ✨</h3>{isLoading ? <div className="mini-spinner"></div> : <p>{analysis}</p>}</div><div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 12 }}><button onClick={onRegenerate} className="small" disabled={isLoading}>{isLoading ? 'Generando...' : 'Regenerar'}</button><button onClick={onClose} className="small secondary">Cerrar</button></div></div></div> ); };
 const StandingsTable = ({ data, onTeamClick, search, sortBy, sortDir }) => { if (!data || data.length === 0) return <p style={{ textAlign: 'center' }}>No hay datos de posiciones disponibles.</p>; const filtered = search ? data.filter(d => d.equipo && d.equipo.toLowerCase().includes(search.trim().toLowerCase())) : data; const sorted = [...filtered].sort((a, b) => { if (sortBy === 'pts') return (b.pts || 0) - (a.pts || 0) || ((b.gf || 0) - (b.gc || 0)) - ((a.gf || 0) - (a.gc || 0)); if (sortBy === 'gf') return (b.gf || 0) - (a.gf || 0); if (sortBy === 'gd') return ((b.gf || 0) - (b.gc || 0)) - ((a.gf || 0) - (a.gc || 0)); const nameA = (a.equipo || '').toLowerCase(); const nameB = (b.equipo || '').toLowerCase(); return sortDir === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA); }); return ( <div className="table-wrap"><table><thead><tr><th className="col-rank">#</th><th className="col-team">Equipo</th><th>JJ</th><th>PG</th><th>PE</th><th>PP</th><th>GF</th><th>GC</th><th>+/-</th><th className="col-pts">PTS</th></tr></thead><tbody className="standings-body">{sorted.map((team, idx) => { const gd = (team.gf || 0) - (team.gc || 0); return ( <tr key={`${team.equipo}-${idx}`} onClick={() => onTeamClick(team)} className="clickable-row" title={`Click para ver análisis de ${team.equipo}`}><td className={`col-rank rank-${idx + 1}`}>{idx + 1}</td><td className="col-team">{team.equipo || '[Dato no disponible]'}</td><td>{team.jj ?? '-'}</td><td>{team.pg ?? '-'}</td><td>{team.pe ?? '-'}</td><td>{team.pp ?? '-'}</td><td>{team.gf ?? '-'}</td><td>{team.gc ?? '-'}</td><td className={gd >= 0 ? 'pos-positive' : 'pos-negative'}>{gd > 0 ? `+${gd}` : gd}</td><td className="col-pts">{team.pts ?? '-'}</td></tr> ); })}</tbody></table></div> ); };
 const ScorersTable = ({ data, search }) => { if (!data || data.length === 0) return <p style={{ textAlign: 'center' }}>No hay datos de goleadores disponibles.</p>; const filtered = search ? data.filter(p => (p.jugador || '').toLowerCase().includes(search.toLowerCase()) || (p.equipo || '').toLowerCase().includes(search.toLowerCase())) : data; const sorted = [...filtered].sort((a, b) => (b.goles || 0) - (a.goles || 0)); return ( <div className="table-wrap"><table><thead><tr><th className="col-rank">#</th><th className="col-team">Jugador</th><th>Equipo</th><th className="col-pts">Goles</th></tr></thead><tbody>{sorted.map((p, idx) => ( <tr key={`${p.jugador}-${idx}`}><td className={`col-rank rank-${idx + 1}`}>{idx + 1}</td><td className="col-team">{p.jugador || '[Dato no disponible]'}</td><td>{p.equipo || '[Dato no disponible]'}</td><td className="col-pts">{p.goles ?? 0}</td></tr> ))}</tbody></table></div> ); };
-const NewsSection = ({ data }) => { if (!data || data.length === 0) return <div className="news-container" style={{ textAlign: 'center', padding: 40 }}><p>NO HAY NOTICIAS NUEVAS, VUELVE MÁS TARDE</p></div>; const sorted = [...data].sort((a, b) => { const parse = (s) => s ? new Date(String(s).includes('/') ? String(s).split('/').reverse().join('-') : s).getTime() : 0; return (parse(b.fecha) || 0) - (parse(a.fecha) || 0); }); return ( <div className="news-container">{sorted.map((item, idx) => ( <article className="news-card" key={idx} aria-labelledby={`news-title-${idx}`}><h2 id={`news-title-${idx}`}>{item.titulo || '[Título no disponible]'}</h2><p className="news-date">{item.fecha}</p><div>{item.contenido}</div></article> ))}</div> ); };
-const BracketView = ({ data }) => { if (!data || data.length === 0) { return <div className="bracket-section-background"><p className="empty-state-message">La fase de llaves aún no ha comenzado.</p></div>; } const rounds = data.reduce((acc, m, i) => { const r = m.ronda || `Ronda ${m.ronda_number || 'X'}`; if (!acc[r]) acc[r] = []; acc[r].push({ ...m, __id: i }); return acc; }, {}); const order = ['Octavos', 'Cuartos', 'Semifinal', 'Final'].filter(r => rounds[r] && rounds[r].length > 0); if (order.length === 0) { return <div className="bracket-section-background"><p className="empty-state-message">Las rondas de las llaves no están definidas aún.</p></div>; } return ( <div className="bracket-section-background"><div className="bracket-container-champions">{order.map(rn => ( <div className="round-champions" key={rn}><h2>{rn}</h2><div className="matches-champions">{rounds[rn].map(match => { const s1 = Number(match.equipo1_marcador); const s2 = Number(match.equipo2_marcador); const t1win = match.estado === 'Jugado' && s1 > s2; const t2win = match.estado === 'Jugado' && s2 > s1; return ( <div className="match-champions" key={match.__id}><div className={`team-champions ${t1win ? 'winner' : ''}`}><span className="team-name">{match.equipo1_nombre || 'A definir'}</span><span className="team-score">{match.equipo1_marcador ?? '-'}</span></div><div className={`team-champions ${t2win ? 'winner' : ''}`}><span className="team-name">{match.equipo2_nombre || 'A definir'}</span><span className="team-score">{match.equipo2_marcador ?? '-'}</span></div></div> ); })}</div></div> ))}</div></div> ); };
+
+// --- BracketView: ahora más robusto ---
+const BracketView = ({ data }) => {
+  if (!data || data.length === 0) {
+    return <div className="bracket-section-background"><p className="empty-state-message">La fase de llaves aún no ha comenzado.</p></div>;
+  }
+
+  const canonicalRoundName = (raw) => {
+    if (!raw && raw !== 0) return null;
+    const s = String(raw).toLowerCase().trim().replace(/[\s\-_]+/g, ' ');
+    const map = {
+      'octavos': 'Octavos',
+      'octavos de final': 'Octavos',
+      'round of 16': 'Octavos',
+      'cuartos': 'Cuartos',
+      'cuartos de final': 'Cuartos',
+      'semifinal': 'Semifinal',
+      'semi final': 'Semifinal',
+      'semi-final': 'Semifinal',
+      'semi': 'Semifinal',
+      'semis': 'Semifinal',
+      'final': 'Final',
+      'tercer puesto': 'Tercer Puesto',
+      '3er puesto': 'Tercer Puesto',
+      'tercer_puesto': 'Tercer Puesto'
+    };
+    return map[s] || null;
+  };
+
+  // Agrupar partidos por ronda pero usando nombres canónicos cuando sea posible
+  const rounds = data.reduce((acc, m, i) => {
+    const raw = m.ronda_raw ?? m.ronda ?? m.ronda_number ?? '';
+    const canon = canonicalRoundName(raw);
+    const displayName = canon || (m.ronda ? String(m.ronda).trim() : `Ronda ${m.ronda_number || 'X'}`);
+    if (!acc[displayName]) acc[displayName] = [];
+    acc[displayName].push({ ...m, __id: i });
+    return acc;
+  }, {});
+
+  // Orden preferente de rondas (se mostrarán en este orden si existen)
+  const preferredOrder = ['Octavos', 'Cuartos', 'Semifinal', 'Final', 'Tercer Puesto'];
+  const order = preferredOrder.filter(r => rounds[r] && rounds[r].length > 0);
+  // si no hay rondas en order, usa el orden detectado en el CSV
+  const finalOrder = order.length > 0 ? order : Object.keys(rounds);
+
+  return (
+    <div className="bracket-section-background">
+      <div className="bracket-container-champions">
+        {finalOrder.map(rn => (
+          <div className="round-champions" key={rn}>
+            <h2>{rn}</h2>
+            <div className="matches-champions">
+              {rounds[rn]
+                .slice()
+                .sort((a, b) => {
+                  // intenta ordenar por id si es numérico, sino por el __id (orden en CSV)
+                  const ia = Number(a.id);
+                  const ib = Number(b.id);
+                  if (!Number.isNaN(ia) && !Number.isNaN(ib)) return ia - ib;
+                  return (a.__id || 0) - (b.__id || 0);
+                })
+                .map(match => {
+                  const s1n = safeNumber(match.equipo1_marcador);
+                  const s2n = safeNumber(match.equipo2_marcador);
+                  const s1 = s1n === null ? null : Number(s1n);
+                  const s2 = s2n === null ? null : Number(s2n);
+                  const t1win = match.estado && String(match.estado).toLowerCase().trim() === 'jugado' && s1 !== null && s2 !== null && s1 > s2;
+                  const t2win = match.estado && String(match.estado).toLowerCase().trim() === 'jugado' && s1 !== null && s2 !== null && s2 > s1;
+                  return (
+                    <div className="match-champions" key={`${match.__id}-${match.id || ''}`}>
+                      <div className={`team-champions ${t1win ? 'winner' : ''}`}>
+                        <span className="team-name">{match.equipo1_nombre || 'A definir'}</span>
+                        <span className="team-score">{s1 !== null && !Number.isNaN(s1) ? s1 : '-'}</span>
+                      </div>
+                      <div className={`team-champions ${t2win ? 'winner' : ''}`}>
+                        <span className="team-name">{match.equipo2_nombre || 'A definir'}</span>
+                        <span className="team-score">{s2 !== null && !Number.isNaN(s2) ? s2 : '-'}</span>
+                      </div>
+                      {match.estado && <div className="match-status">{match.estado}</div>}
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 // --- Componente Principal ---
 export default function App() {
@@ -190,7 +291,7 @@ export default function App() {
     switch (activeView) {
       case 'standings': return (<><div className="controls-row"><div className="search-box"><input placeholder="Buscar equipo..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} aria-label="Buscar equipo" /></div><div className="sort-box"><label htmlFor="sort-select">Orden:</label><select id="sort-select" value={sortBy} onChange={e => setSortBy(e.target.value)}><option value="pts">Puntos</option><option value="gd">Diferencia</option><option value="gf">Goles a favor</option><option value="name">Nombre</option></select><button onClick={() => setSortDir(d => d === 'asc' ? 'desc' : 'asc')} className="small">{sortDir === 'asc' ? 'Asc' : 'Desc'}</button></div></div><StandingsTable data={standingsData} onTeamClick={handleTeamClick} search={searchQuery} sortBy={sortBy} sortDir={sortDir} /></>);
       case 'scorers': return (<><div className="controls-row"><div className="search-box"><input placeholder="Buscar jugador o equipo..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} aria-label="Buscar goleador" /></div></div><ScorersTable data={scorersData} search={searchQuery} /></>);
-      case 'news': return <NewsSection data={newsData} />;
+      case 'news': return <div style={{ padding: 8 }}><NewsSection data={newsData} /></div>;
       case 'bracket': return <BracketView data={bracketData} />;
       default: return <StandingsTable data={standingsData} onTeamClick={handleTeamClick} search={searchQuery} sortBy={sortBy} sortDir={sortDir} />;
     }
