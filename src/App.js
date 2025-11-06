@@ -338,7 +338,7 @@ export default function App() {
 
   return (
     <div className="container">
-      <h1 className="main-title">Torneo "Torneo navideño San Sebastian Retalhuleu"</h1>
+      <h1 className="main-title">Torneo navideño San Sebastian Retalhuleu</h1>
       <Navbar activeView={activeView} setActiveView={handleSetView} onRefresh={handleRefresh} lastUpdated={lastUpdated} />
       {renderContent()}
       {modalOpen && <GeminiAnalysisModal team={selectedTeam} analysis={teamAnalysis} isLoading={analysisLoading} onClose={() => setModalOpen(false)} onRegenerate={handleRegenerateAnalysis} />}
